@@ -1,0 +1,25 @@
+name: progress_saver
+description: "A new Flutter project."
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: ">=3.5.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  crypto: ^3.0.1
+  sqflite: ^2.2.8 # SQLite para móviles
+  sqflite_common_ffi: ^2.3.2 # SQLite para desktop (Windows/Linux)
+  path: ^1.8.3 # Manejo de rutas de archivos
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
