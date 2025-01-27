@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:progress_saver/themes/colors.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
-import 'package:progress_saver/iniciosesion.dart';
+import 'package:progress_saver/inicio.dart';
+import 'package:progress_saver/inicioSesion.dart';
 
 void main() {
   runApp(MyApp());
@@ -33,6 +35,11 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _onItemTapped(int index) {
     if (index == 2) { // Índice del botón "Profile"
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => Inicio()),
+      );
+    } else if (index == 1) {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => InicioSesion()),
@@ -91,25 +98,25 @@ class _MyHomePageState extends State<MyHomePage> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFFECFEFE),
+        backgroundColor: azulito,
         elevation: 0,
-        title: const Row(
+        title: Row(
           children: [
-            CircleAvatar(
+            const CircleAvatar(
               backgroundImage: AssetImage('assets/images/angeldiablo.jpg'),
               radius: 20,
             ),
             SizedBox(width: 10),
             Text(
               'Bienvenido',
-              style: TextStyle(color: Colors.black),
+              style: TextStyle(color: laMancha),
             ),
           ],
         ),
       ),
       body: _selectedIndex == 0
           ? Container(
-              color: const Color(0xFF979696),
+              color: fondoColor,
               child: Column(
                 children: [
                   Expanded(
@@ -169,8 +176,8 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.blue,
-        backgroundColor: const Color(0xFFECFEFE),
+        selectedItemColor: navegacion,
+        backgroundColor: azulito,
         onTap: _onItemTapped,
         iconSize: 30, // Ajusta el tamaño de los iconos aquí
       ),
@@ -196,7 +203,7 @@ class Tarjeta extends StatelessWidget {
             borderRadius: BorderRadius.circular(8),
             boxShadow: [
               BoxShadow(
-                color: Colors.black26,
+                color: laMancha,
                 blurRadius: 5,
                 offset: Offset(0, 2),
               ),
