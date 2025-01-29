@@ -33,42 +33,53 @@ class _AjustesState extends State<Ajustes> {
   }
 
   void _showCustomAlert(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Foto de perfil"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text("Elija la imagen para su usuario:"),
-              SizedBox(height: 10),
-              TextField(
-                controller: _textController,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintText: "Pega URL aquí",
-                ),
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text("Foto de perfil"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text("Elija la imagen para su usuario:"),
+            SizedBox(height: 10),
+            TextField(
+              controller: _textController,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                hintText: "Pega URL aquí",
               ),
-            ],
-          ),
-          actions: [
-            ElevatedButton(
-              onPressed: () async {
-                await _dbHelper.initializeDatabase();
-                String inputText = _textController.text;
-                //context.read<UserProvider>().usuarioSup.setImagen(inputText);
-                context.read<UserProvider>().guardarImagen(inputText);
-                _dbHelper.updateUserProfileImage(context.read<UserProvider>().usuarioSup.getNombre(), inputText);
-                Navigator.of(context).pop();
-              },
-              child: Text("Aceptar"),
             ),
           ],
-        );
-      },
-    );
-  }
+        ),
+        actions: [
+          ElevatedButton(
+            onPressed: () async {
+              await _dbHelper.initializeDatabase();
+              String inputText = _textController.text;
+
+              // Actualiza la imagen en UserProvider
+              context.read<UserProvider>().guardarImagen(inputText);
+
+              // Actualiza la imagen en la base de datos
+              await _dbHelper.updateUserProfileImage(
+                context.read<UserProvider>().usuarioSup.getNombre(), 
+                inputText
+              );
+
+              // 🔥 Forzar la reconstrucción de la pantalla
+              setState(() {});
+
+              Navigator.of(context).pop();
+            },
+            child: Text("Aceptar"),
+          ),
+        ],
+      );
+    },
+  );
+}
+
 
   @override
   Widget build(BuildContext context) {
