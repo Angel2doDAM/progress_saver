@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -11,8 +13,8 @@ class DatabaseHelper {
     databaseFactory = databaseFactoryFfi;
 
     // Obtén el directorio de documentos de la aplicación
-    final directory = await getApplicationDocumentsDirectory();
-    final dbPath = join(directory.path, 'app_data.db');
+    final directory = Directory.current;
+    final dbPath = join(directory.path, "base_de_datos", 'app_data.db');
 
     print('Database created at: $dbPath');
 
@@ -25,27 +27,36 @@ class DatabaseHelper {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT UNIQUE,
         password TEXT,
-        isadmin INTEGER DEFAULT 0
+        isadmin INTEGER DEFAULT 0,
+        profile_image TEXT
       )
     ''');
 
-    // Comprueba si es necesario realizar una migración para añadir la columna
+    // Comprueba si es necesario realizar una migración para añadir las columnas
     try {
-      await _db.execute('ALTER TABLE Usuarios ADD COLUMN isadmin INTEGER DEFAULT 0');
+      await _db
+          .execute('ALTER TABLE Usuarios ADD COLUMN isadmin INTEGER DEFAULT 0');
     } catch (e) {
-      // Ignorar el error si la columna ya existe
       print('Column "isadmin" already exists: $e');
+    }
+
+    try {
+      await _db.execute('ALTER TABLE Usuarios ADD COLUMN profile_image TEXT');
+    } catch (e) {
+      print('Column "profile_image" already exists: $e');
     }
   }
 
-  Future<int> insertUser(String username, String password, {bool isAdmin = true}) async {
-    if (username=="Admin"){
-      isAdmin=true;
+  Future<int> insertUser(String username, String password,
+      {bool isAdmin = false, String? profileImage}) async {
+    if (username == "Admin") {
+      isAdmin = true;
     }
     return await _db.insert('Usuarios', {
       'username': username,
       'password': password,
-      'isadmin': isAdmin ? 1 : 0, // Convierte bool a int para SQLite
+      'isadmin': isAdmin ? 1 : 0,
+      'profile_image': profileImage ?? '',
     });
   }
 
@@ -74,13 +85,41 @@ class DatabaseHelper {
       whereArgs: [username],
     );
     if (result.isNotEmpty) {
-      return result.first['isadmin'] == 1; // Devuelve true si el usuario es administrador
+      return result.first['isadmin'] == 1;
     }
     return false;
   }
 
-  Future<List<Map<String, dynamic>>> getUsers() async {
-    return await _db.query('Usuarios');
+  Future<int> updateUserProfileImage(
+      String username, String profileImagePath) async {
+    return await _db.update(
+      'Usuarios',
+      {'profile_image': profileImagePath},
+      where: 'username = ?',
+      whereArgs: [username],
+    );
+  }
+
+  Future<String> getUserProfileImage(String username) async {
+    try {
+      final List<Map<String, dynamic>> result = await _db.rawQuery(
+        'SELECT profile_image FROM Usuarios WHERE username = ?',
+        [username],
+      );
+
+      print(username);
+      print(result);
+
+      if (result.isNotEmpty &&
+          result.first['profile_image'] != null &&
+          result.first['profile_image'].isNotEmpty) {
+        return result.first['profile_image'];
+      }
+      return "No hay foto";
+    } catch (e) {
+      print("Database error: $e");
+      return "Error al obtener la imagen";
+    }
   }
 
   void closeDatabase() async {

@@ -54,10 +54,12 @@ class _AjustesState extends State<Ajustes> {
           ),
           actions: [
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
+                await _dbHelper.initializeDatabase();
                 String inputText = _textController.text;
-                Navigator.of(context).pop();
                 SuperUsuario().setProfilePictureUrl(inputText);
+                _dbHelper.updateUserProfileImage(SuperUsuario().getNombre().toString(), inputText);
+                Navigator.of(context).pop();
               },
               child: Text("Aceptar"),
             ),
@@ -109,7 +111,7 @@ class _AjustesState extends State<Ajustes> {
             SizedBox(height: screenHeight * 0.05),
             SizedBox(height: screenHeight * 0.1),
             // TextField para introducir el nombre
-            Text("Introduzca su nombre ed usuario:",
+            Text("Introduzca su nombre de usuario:",
                 style: TextStyle(
                   fontSize: screenWidth * 0.03 > maxFontSize
                       ? maxFontSize

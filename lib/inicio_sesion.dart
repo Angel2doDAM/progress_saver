@@ -62,7 +62,7 @@ class _InicioSesionState extends State<InicioSesion> {
             ),
             SizedBox(height: screenHeight * 0.1),
             // TextField para introducir el nombre
-            Text("Introduzca su nombre ed usuario:",
+            Text("Introduzca su nombre de usuario:",
                 style: TextStyle(
                   fontSize: screenWidth * 0.03 > maxFontSize
                       ? maxFontSize
@@ -116,9 +116,12 @@ class _InicioSesionState extends State<InicioSesion> {
                   // Inicializa la base de datos
                   await _dbHelper.initializeDatabase();
 
+                  _dbHelper.updateUserProfileImage("Admin", "https://thumbs.dreamstime.com/b/gritos-cabreados-del-hombre-58919826.jpg");
+
                   // Obtén el nombre y la contraseña del formulario
                   final username = nombreController.text;
                   final password = encryptPassword(contraController.text); // Cifra la contraseña
+                  final photo = await _dbHelper.getUserProfileImage(username);
 
                   try {
                     // Intentamos insertar el usuario en la base de datos
@@ -129,9 +132,11 @@ class _InicioSesionState extends State<InicioSesion> {
                       ));
 
                       if(await _dbHelper.isUserAdmin(username)){
-                        SuperUsuario().iniciarSesion(username: username, isAdmin: true);
+                        SuperUsuario().iniciarSesion(username: username, isAdmin: true, profilePictureUrl: photo.toString());
+                        print(photo);
+                        print(SuperUsuario().getProfilePictureUrl());
                       } else {
-                        SuperUsuario().iniciarSesion(username: username,);
+                        SuperUsuario().iniciarSesion(username: username, profilePictureUrl: photo.toString());
                       }
 
                       Navigator.push(

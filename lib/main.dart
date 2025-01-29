@@ -4,6 +4,8 @@ import 'package:progress_saver/themes/colors.dart';
 import 'package:progress_saver/inicio.dart';
 import 'package:progress_saver/inicio_sesion.dart';
 import 'package:progress_saver/ajustes_usuario.dart';
+import 'package:progress_saver/usuario.dart';
+import 'database_helper.dart';
 
 void main() {
   runApp(MyApp());
@@ -29,6 +31,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final DatabaseHelper _dbHelper = DatabaseHelper();
   int _selectedIndex = 0;
 
   void _onItemTapped(int index) {
@@ -58,6 +61,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    _dbHelper.initializeDatabase();
     double anchoVentana = MediaQuery.of(context).size.width;
 
     int columnas = 1;
@@ -223,4 +227,9 @@ class Tarjeta extends StatelessWidget {
       },
     );
   }
+}
+
+
+class UserProvider extends ChangeNotifier{
+  Usuario? usuario = null;
 }
