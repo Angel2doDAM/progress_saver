@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:progress_saver/super_usuario.dart';
+import 'package:provider/provider.dart';
 import 'package:progress_saver/themes/colors.dart';
 import 'package:progress_saver/main.dart';
 import 'package:crypto/crypto.dart';
+import 'package:progress_saver/usuario.dart';
 import 'dart:convert';
 import 'database_helper.dart';
 
@@ -37,7 +38,6 @@ class _InicioSesionState extends State<InicioSesion> {
     double screenHeight = MediaQuery.of(context).size.height;
 
     double fontSize = screenWidth * 0.08; // 8% del ancho de la pantalla
-    double maxButtonHeight = 80.0;
     double maxFontSize = 20.0;
     double maxTittleSize = 60.0;
 
@@ -116,28 +116,22 @@ class _InicioSesionState extends State<InicioSesion> {
                   // Inicializa la base de datos
                   await _dbHelper.initializeDatabase();
 
-                  _dbHelper.updateUserProfileImage("Admin", "https://thumbs.dreamstime.com/b/gritos-cabreados-del-hombre-58919826.jpg");
-
                   // Obtén el nombre y la contraseña del formulario
                   final username = nombreController.text;
                   final password = encryptPassword(contraController.text); // Cifra la contraseña
-                  final photo = await _dbHelper.getUserProfileImage(username);
 
                   try {
                     // Intentamos insertar el usuario en la base de datos
-                    if(await _dbHelper.validateUser(username, password)){
+                    Usuario? usuario = await _dbHelper.validateUser(username, password);
+                    if(usuario!=null){
+                      final photo = await _dbHelper.getUserProfileImage(username);
                       // Muestra un mensaje de éxito
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        content: Text('Usuario registrado exitosamente'),
+                        content: Text('Sesion iniciada placenteramente'),
                       ));
 
-                      if(await _dbHelper.isUserAdmin(username)){
-                        SuperUsuario().iniciarSesion(username: username, isAdmin: true, profilePictureUrl: photo.toString());
-                        print(photo);
-                        print(SuperUsuario().getProfilePictureUrl());
-                      } else {
-                        SuperUsuario().iniciarSesion(username: username, profilePictureUrl: photo.toString());
-                      }
+                      context.read<UserProvider>().usuarioSup = usuario;
+                      context.read<UserProvider>().guardarImagen(photo);
 
                       Navigator.push(
                         context,

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:progress_saver/usuario.dart';
 
 class DatabaseHelper {
   late Database _db;
@@ -47,17 +48,21 @@ class DatabaseHelper {
     }
   }
 
-  Future<int> insertUser(String username, String password,
-      {bool isAdmin = false, String? profileImage}) async {
-    if (username == "Admin") {
-      isAdmin = true;
+  Future<int> insertUser(Usuario usuario) async {
+    return await _db.insert('Usuarios', usuario.toMap());
+  }
+
+  Future<Usuario?> validateUser(String username, String password) async {
+    final List<Map<String, dynamic>> result = await _db.query(
+      'Usuarios',
+      where: 'username = ? AND password = ?',
+      whereArgs: [username, password],
+    );
+
+    if (result.isNotEmpty) {
+      return Usuario.fromMap(result.first); // Retorna un objeto Usuario
     }
-    return await _db.insert('Usuarios', {
-      'username': username,
-      'password': password,
-      'isadmin': isAdmin ? 1 : 0,
-      'profile_image': profileImage ?? '',
-    });
+    return null; // Usuario no encontrado
   }
 
   Future<int> deleteUser(String username) async {
@@ -68,15 +73,6 @@ class DatabaseHelper {
     );
   }
 
-  Future<bool> validateUser(String username, String password) async {
-    final List<Map<String, dynamic>> result = await _db.query(
-      'Usuarios',
-      where: 'username = ? AND password = ?',
-      whereArgs: [username, password],
-    );
-    return result.isNotEmpty;
-  }
-
   Future<bool> isUserAdmin(String username) async {
     final List<Map<String, dynamic>> result = await _db.query(
       'Usuarios',
@@ -84,8 +80,8 @@ class DatabaseHelper {
       where: 'username = ?',
       whereArgs: [username],
     );
-    if (result.isNotEmpty) {
-      return result.first['isadmin'] == 1;
+    if (result==1) {
+      return true;
     }
     return false;
   }
@@ -106,9 +102,6 @@ class DatabaseHelper {
         'SELECT profile_image FROM Usuarios WHERE username = ?',
         [username],
       );
-
-      print(username);
-      print(result);
 
       if (result.isNotEmpty &&
           result.first['profile_image'] != null &&

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:progress_saver/super_usuario.dart';
+import 'package:provider/provider.dart';
 import 'package:progress_saver/themes/colors.dart';
 import 'package:progress_saver/main.dart';
 import 'package:crypto/crypto.dart';
@@ -70,7 +70,6 @@ class _RegistroUserState extends State<RegistroUser> {
     double screenHeight = MediaQuery.of(context).size.height;
 
     double fontSize = screenWidth * 0.08; // 8% del ancho de la pantalla
-    double maxButtonHeight = 80.0;
     double maxFontSize = 20.0;
     double maxTittleSize = 60.0;
 
@@ -157,43 +156,30 @@ class _RegistroUserState extends State<RegistroUser> {
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () async {
-                validarCampos();
+  onPressed: () async {
+    if (nombreController.text.isNotEmpty && contraController.text.isNotEmpty) {
+      await _dbHelper.initializeDatabase();
+      final username = nombreController.text;
+      final password = encryptPassword(contraController.text);
 
-                if (alertaNombre.isEmpty && alertaContra.isEmpty) {
-                  // Inicializa la base de datos
-                  await _dbHelper.initializeDatabase();
+      context.read<UserProvider>().usuarioSup.setNombre(username);
+      context.read<UserProvider>().usuarioSup.setContrasena(password);
+      context.read<UserProvider>().guardar();
 
-                  // Obtén el nombre y la contraseña del formulario
-                  final username = nombreController.text;
-                  final password = encryptPassword(contraController.text); // Cifra la contraseña
-
-                  try {
-                    // Intentamos insertar el usuario en la base de datos
-                    await _dbHelper.insertUser(username, password);
-
-                    // Muestra un mensaje de éxito
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: Text('Usuario registrado exitosamente'),
-                    ));
-
-                      SuperUsuario().iniciarSesion(username: username, profilePictureUrl: "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png");
-
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => MyApp()),
-                    );
-                    
-                  } catch (e) {
-                    // Si hay un error (por ejemplo, el usuario ya existe), mostramos el mensaje correspondiente
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: Text('Error: El usuario ya existe'),
-                    ));
-                  }
-                }
-              },
-              child: Text('Iniciar Sesión'),
-            ),
+      try {
+        await _dbHelper.insertUser(context.watch<UserProvider>().usuarioSup);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Usuario registrado exitosamente'),
+        ));
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Error al registrar usuario'),
+        ));
+      }
+    }
+  },
+  child: Text('Registrar Usuario'),
+),
           ],
         ),
       ),

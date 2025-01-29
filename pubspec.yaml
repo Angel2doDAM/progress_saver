@@ -14,6 +14,7 @@ dependencies:
   sqflite_common_ffi: ^2.3.2 # SQLite para desktop (Windows/Linux)
   path: ^1.8.3 # Manejo de rutas de archivos
   path_provider: ^2.1.5
+  provider: any
 
 dev_dependencies:
   flutter_test:

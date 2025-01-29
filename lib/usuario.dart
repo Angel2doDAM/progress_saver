@@ -7,28 +7,28 @@ class Usuario {
   Usuario(
       {required String username,
       required String password,
-      int admin = 0,
-      imagen="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"})
+      int isadmin = 0,
+      profile_image="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"})
       : _password = password,
         _username = username,
-        _isadmin = admin,
-        _profile_image= imagen;
+        _isadmin = isadmin,
+        _profile_image= profile_image;
 
   // Método para convertir un Map en un objeto Usuario
   factory Usuario.fromMap(Map<String, Object?> map) {
     return Usuario(
         username: map['username'] as String,
         password: map['password'] as String,
-        admin: map['admin'] as int,
-        imagen: map['imagen'] as String);
+        isadmin: map['isadmin'] as int,
+        profile_image: map['profile_image'] as String);
   }
 
   Map<String, Object?> toMap() {
     return {
       'username': getNombre(),
       'password': getContrasena(),
-      'admin': getIsAdmin(),
-      'imagen': getImagen()
+      'isadmin': getIsAdmin(),
+      'profile_image': getImagen()
     };
   }
 
