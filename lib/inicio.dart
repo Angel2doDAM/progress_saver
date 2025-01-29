@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:progress_saver/iniciosesion.dart';
+import 'package:progress_saver/inicio_sesion.dart';
 import 'package:progress_saver/themes/colors.dart';
+import 'package:progress_saver/registro_usuario.dart';
 
 class Inicio extends StatelessWidget {
   @override
@@ -88,7 +89,7 @@ class Inicio extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => InicioSesion()),
+                  MaterialPageRoute(builder: (context) => RegistroUser()),
                 );
               },
               style: ElevatedButton.styleFrom(

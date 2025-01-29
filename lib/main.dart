@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:progress_saver/super_usuario.dart';
 import 'package:progress_saver/themes/colors.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:progress_saver/inicio.dart';
-import 'package:progress_saver/inicioSesion.dart';
+import 'package:progress_saver/inicio_sesion.dart';
+import 'package:progress_saver/ajustes_usuario.dart';
 
 void main() {
   runApp(MyApp());
@@ -28,13 +29,10 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  late Database _db;
-  bool _isLoading = true;
-
   int _selectedIndex = 0;
 
   void _onItemTapped(int index) {
-    if (index == 2) { // Índice del botón "Profile"
+    if (index == 2) {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => Inicio()),
@@ -51,38 +49,17 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    initializeDatabase();
-  }
-
-  Future<void> initializeDatabase() async {
-    sqfliteFfiInit();
-    var databaseFactory = databaseFactoryFfi;
-
-    // Crea la base de datos
-    _db = await databaseFactory.openDatabase('app_data.db');
-
-    // Crea la tabla de usuarios
-    await _db.execute('''
-      CREATE TABLE IF NOT EXISTS Usuarios (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT UNIQUE,
-        password TEXT
-      )
-    ''');
-
-    setState(() {
-      _isLoading = false;
-    });
+  void _navigateToSettings() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => Ajustes()),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     double anchoVentana = MediaQuery.of(context).size.width;
 
-    // Calcular el número de columnas basado en el ancho de la pantalla
     int columnas = 1;
     if (anchoVentana >= 300 && anchoVentana < 600) {
       columnas = 2;
@@ -102,63 +79,50 @@ class _MyHomePageState extends State<MyHomePage> {
         elevation: 0,
         title: Row(
           children: [
-            const CircleAvatar(
-              backgroundImage: AssetImage('assets/images/angeldiablo.jpg'),
-              radius: 20,
+            GestureDetector(
+              onTap: _navigateToSettings,
+              child: CircleAvatar(
+                backgroundImage: NetworkImage(
+                  SuperUsuario().getProfilePictureUrl() ??
+                      'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png',
+                ),
+                radius: 20,
+              ),
             ),
             SizedBox(width: 10),
             Text(
-              'Bienvenido',
+              SuperUsuario().getNombre().toString(),
               style: TextStyle(color: laMancha),
             ),
           ],
         ),
       ),
-      body: _selectedIndex == 0
-          ? Container(
-              color: fondoColor,
-              child: Column(
-                children: [
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: GridView.builder(
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: columnas, // Número de tarjetas por fila dinámico
-                          crossAxisSpacing: 16, // Espacio horizontal entre tarjetas
-                          mainAxisSpacing: 16, // Espacio vertical entre tarjetas
-                          childAspectRatio: 3 / 4, // Proporción de ancho/alto
-                        ),
-                        itemCount: 6, // Número total de tarjetas
-                        itemBuilder: (context, index) {
-                          return Tarjeta(); // Crear cada tarjeta
-                        },
-                      ),
-                    ),
+      body: Container(
+        color: fondoColor,
+        child: Column(
+          children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: GridView.builder(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: columnas,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 16,
+                    childAspectRatio: 3 / 4,
                   ),
-                ],
-              ),
-            )
-          : Center(
-              child: ElevatedButton(
-                onPressed: () async {
-                  // Prueba de la base de datos
-                  final username = 'admin';
-                  final password = '1234';
-
-                  await _db.insert('Usuarios', {
-                    'username': username,
-                    'password': EncryptPassword.encryptpassword(password),
-                  });
-
-                  final users = await _db.query('Usuarios');
-                  print(users); // Verifica que los usuarios se almacenaron correctamente
-                },
-                child: const Text('Test Database'),
+                  itemCount: 6,
+                  itemBuilder: (context, index) {
+                    return Tarjeta();
+                  },
+                ),
               ),
             ),
+          ],
+        ),
+      ),
       bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
+        items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Home',
@@ -169,7 +133,10 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           BottomNavigationBarItem(
             icon: CircleAvatar(
-              backgroundImage: AssetImage('assets/images/angeldiablo.jpg'),
+              backgroundImage: NetworkImage(
+                SuperUsuario().getProfilePictureUrl() ??
+                    'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png',
+              ),
               radius: 20,
             ),
             label: 'Profile',
@@ -179,15 +146,9 @@ class _MyHomePageState extends State<MyHomePage> {
         selectedItemColor: navegacion,
         backgroundColor: azulito,
         onTap: _onItemTapped,
-        iconSize: 30, // Ajusta el tamaño de los iconos aquí
+        iconSize: 30,
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _db.close();
-    super.dispose();
   }
 }
 
@@ -196,7 +157,7 @@ class Tarjeta extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        double fontSize = constraints.maxWidth * 0.07; // Proporción del tamaño del texto
+        double fontSize = constraints.maxWidth * 0.07;
 
         return Container(
           decoration: BoxDecoration(
@@ -223,7 +184,7 @@ class Tarjeta extends StatelessWidget {
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(8),
                       child: Container(
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           image: DecorationImage(
                             image: AssetImage('assets/images/pressdebanca.jpg'),
                             fit: BoxFit.cover,
@@ -261,11 +222,5 @@ class Tarjeta extends StatelessWidget {
         );
       },
     );
-  }
-}
-
-class EncryptPassword {
-  static String encryptpassword(String password) {
-    return password.split('').reversed.join();
   }
 }
