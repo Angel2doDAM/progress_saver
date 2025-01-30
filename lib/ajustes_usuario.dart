@@ -5,6 +5,7 @@ import 'package:progress_saver/main.dart';
 import 'package:crypto/crypto.dart';
 import 'dart:convert';
 import 'database_helper.dart';
+import 'package:http/http.dart';
 
 class Ajustes extends StatefulWidget {
   @override
@@ -16,22 +17,6 @@ class _AjustesState extends State<Ajustes> {
   final TextEditingController nombreController = TextEditingController();
   final TextEditingController contraController = TextEditingController();
   final TextEditingController _textController = TextEditingController();
-
-  // Función para cifrar la contraseña de forma segura con SHA-256 y salt
-  String encryptPassword(String password) {
-    // Salt aleatorio
-    final salt = 'mi_salt_secreto'; 
-
-    // Combina el salt con la contraseña
-    final passwordWithSalt = password + salt;
-
-    // Aplicamos SHA-256
-    final bytes = utf8.encode(passwordWithSalt); // Convierte la cadena a bytes
-    final digest = sha256.convert(bytes); // Obtiene el hash SHA-256
-
-    return digest.toString(); // Devuelve el hash como una cadena hexadecimal
-  }
-
   void _showCustomAlert(BuildContext context) {
   showDialog(
     context: context,
@@ -55,7 +40,10 @@ class _AjustesState extends State<Ajustes> {
         actions: [
           ElevatedButton(
             onPressed: () async {
-              await _dbHelper.initializeDatabase();
+              try{
+              Uri uri = Uri.parse(_textController.text);
+              if((await get(uri)).statusCode == 200){
+                await _dbHelper.initializeDatabase();
               String inputText = _textController.text;
 
               // Actualiza la imagen en UserProvider
@@ -67,10 +55,14 @@ class _AjustesState extends State<Ajustes> {
                 inputText
               );
 
-              // 🔥 Forzar la reconstrucción de la pantalla
               setState(() {});
 
               Navigator.of(context).pop();
+              }
+              }catch(e){
+                setState(() {
+                });
+              }
             },
             child: Text("Aceptar"),
           ),

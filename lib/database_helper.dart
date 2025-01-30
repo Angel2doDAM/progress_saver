@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:path/path.dart';
 import 'package:progress_saver/usuario.dart';
+import 'package:progress_saver/ejercicio.dart';
 
 class DatabaseHelper {
   late Database _db;
@@ -79,7 +80,7 @@ class DatabaseHelper {
       where: 'username = ?',
       whereArgs: [username],
     );
-    if (result==1) {
+    if (result == 1) {
       return true;
     }
     return false;
@@ -116,5 +117,62 @@ class DatabaseHelper {
 
   void closeDatabase() async {
     await _db.close();
+  }
+}
+
+// ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+class EjerciceDatabaseHelper {
+  late Database _edb;
+
+  Future<void> initializeDatabase() async {
+    // Inicializa sqflite_common_ffi
+    sqfliteFfiInit();
+    databaseFactory = databaseFactoryFfi;
+
+    // Obtén el directorio de documentos de la aplicación
+    final directory = Directory.current;
+    final dbPath = join(directory.path, "base_de_datos", 'ejer_app_data.db');
+
+    print('Database created at: $dbPath');
+
+    // Abre la base de datos
+    _edb = await databaseFactory.openDatabase(dbPath);
+
+    // Crea o actualiza la tabla de ejercicios
+    await _edb.execute('''
+      CREATE TABLE IF NOT EXISTS Ejercicios (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        ejername TEXT UNIQUE,
+        isselected INTEGER DEFAULT 0,
+        ejercice_image TEXT
+      )
+    ''');
+
+    Future<int> insertEjer(Ejercicio ejercicio) async {
+      return await _edb.insert('Ejercicios', ejercicio.toMap());
+    }
+
+        Future<int> updateEjer(
+        String ejernameOld, String ejernameNew, int isSelected, String ejerImagePath) async {
+      return await _edb.update(
+        'Ejercicios',
+        {'ejername': ejernameNew,'isselected': isSelected, 'profile_image': ejerImagePath},
+        where: 'ejername = ?',
+        whereArgs: [ejernameOld],
+      );
+    }
+
+    Future<int> deleteEjer(String ejername) async {
+      return await _edb.delete(
+        'Ejercicios',
+        where: 'ejername = ?',
+        whereArgs: [ejername],
+      );
+    }
+
+    void closeDatabase() async {
+      await _edb.close();
+    }
   }
 }
