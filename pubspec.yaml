@@ -10,9 +10,9 @@ dependencies:
   flutter:
     sdk: flutter
   crypto: ^3.0.1
-  sqflite: ^2.2.8 # SQLite para móviles
-  sqflite_common_ffi: ^2.3.2 # SQLite para desktop (Windows/Linux)
-  path: ^1.8.3 # Manejo de rutas de archivos
+  sqflite: ^2.2.8
+  sqflite_common_ffi: ^2.3.2
+  path: ^1.8.3
   path_provider: ^2.1.5
   provider: any
   http: ^1.3.0

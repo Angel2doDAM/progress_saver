@@ -114,7 +114,7 @@ class _InicioSesionState extends State<InicioSesion> {
 
                 if (!nombreController.text.isEmpty && !contraController.text.isEmpty) {
                   // Inicializa la base de datos
-                  await _dbHelper.initializeDatabase();
+                  await _dbHelper.initializeUsuariosDatabase();
 
                   // Obtén el nombre y la contraseña del formulario
                   final username = nombreController.text;

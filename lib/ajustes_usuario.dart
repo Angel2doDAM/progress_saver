@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:progress_saver/themes/colors.dart';
 import 'package:progress_saver/main.dart';
-import 'package:crypto/crypto.dart';
-import 'dart:convert';
 import 'database_helper.dart';
 import 'package:http/http.dart';
 
@@ -13,7 +11,7 @@ class Ajustes extends StatefulWidget {
 }
 
 class _AjustesState extends State<Ajustes> {
-  final DatabaseHelper _dbHelper = DatabaseHelper();
+    final DatabaseHelper _dbHelper = DatabaseHelper();
   final TextEditingController nombreController = TextEditingController();
   final TextEditingController contraController = TextEditingController();
   final TextEditingController _textController = TextEditingController();
@@ -43,7 +41,7 @@ class _AjustesState extends State<Ajustes> {
               try{
               Uri uri = Uri.parse(_textController.text);
               if((await get(uri)).statusCode == 200){
-                await _dbHelper.initializeDatabase();
+                await _dbHelper.initializeUsuariosDatabase();
               String inputText = _textController.text;
 
               // Actualiza la imagen en UserProvider

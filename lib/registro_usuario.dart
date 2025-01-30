@@ -158,19 +158,24 @@ class _RegistroUserState extends State<RegistroUser> {
             ElevatedButton(
   onPressed: () async {
     if (nombreController.text.isNotEmpty && contraController.text.isNotEmpty) {
-      await _dbHelper.initializeDatabase();
+      await _dbHelper.initializeUsuariosDatabase();
       final username = nombreController.text;
       final password = encryptPassword(contraController.text);
 
       context.read<UserProvider>().usuarioSup.setNombre(username);
       context.read<UserProvider>().usuarioSup.setContrasena(password);
+      context.read<UserProvider>().usuarioSup.setIsAdmin(0);
       context.read<UserProvider>().guardar();
 
       try {
-        await _dbHelper.insertUser(context.watch<UserProvider>().usuarioSup);
+        await _dbHelper.insertUser(context.read<UserProvider>().usuarioSup);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text('Usuario registrado exitosamente'),
         ));
+        Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => MyApp()),
+                );
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text('Error al registrar usuario'),

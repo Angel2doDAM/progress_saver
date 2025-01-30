@@ -10,7 +10,9 @@ import 'database_helper.dart';
 void main() {
   runApp(
     ChangeNotifierProvider(
-      create: (_)=>UserProvider(), child: MyApp())
+      create: (_) => UserProvider(),
+      child: MyApp(),
+    ),
   );
 }
 
@@ -35,7 +37,55 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final DatabaseHelper _dbHelper = DatabaseHelper();
+  
   int _selectedIndex = 0;
+  List<Map<String, dynamic>> _exercises = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeDatabases();
+    _assignExercise();
+  }
+
+  Future<void> _assignExercise() async {
+    await _dbHelper.assignExerciseToUser(1, 1);
+    await _dbHelper.assignExerciseToUser(1, 2);
+    await _dbHelper.assignExerciseToUser(1, 3);
+  }
+
+  Future<void> _initializeDatabases() async {
+    await _dbHelper.initializeUsuariosDatabase();
+    await _dbHelper.initializeEjerciciosDatabase();
+    await _dbHelper.initializeUsuarioEjercicioDatabase();
+    _loadExercisesForUser(context.watch<UserProvider>().usuarioSup.getNombre());
+  }
+
+  Future<void> _loadExercisesForUser(String username) async {
+  final usuario = await _dbHelper.validateUser(username, '');
+  if (usuario == null) {
+    return;
+  }
+
+  final userId = _dbHelper.getUserIdByUsername(username);
+
+  final ejerIds = await _dbHelper.getExercisesByUser(userId as int);
+
+  final exercises = <Map<String, dynamic>>[];
+
+  for (var ejerId in ejerIds) {
+  final ejercicio = await _dbHelper.getExerciseById(ejerId);
+
+  if (ejercicio != null) {
+    exercises.add(ejercicio);
+  }
+}
+
+  setState(() {
+    _exercises = exercises;
+  });
+}
+
 
   void _onItemTapped(int index) {
     if (index == 2) {
@@ -64,7 +114,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    _dbHelper.initializeDatabase();
     double anchoVentana = MediaQuery.of(context).size.width;
 
     int columnas = 1;
@@ -118,9 +167,12 @@ class _MyHomePageState extends State<MyHomePage> {
                     mainAxisSpacing: 16,
                     childAspectRatio: 3 / 4,
                   ),
-                  itemCount: 6,
+                  itemCount: _exercises.length,
                   itemBuilder: (context, index) {
-                    return Tarjeta();
+                    return Tarjeta(
+                      name: _exercises[index]['ejername'],
+                      imageUrl: _exercises[index]['ejercice_image'],
+                    );
                   },
                 ),
               ),
@@ -142,7 +194,7 @@ class _MyHomePageState extends State<MyHomePage> {
             icon: CircleAvatar(
               backgroundImage: NetworkImage(
                 context.read<UserProvider>().usuarioSup.getImagen() ??
-                      'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png',
+                    'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png',
               ),
               radius: 20,
             ),
@@ -160,90 +212,72 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 class Tarjeta extends StatelessWidget {
+  final String name;
+  final String imageUrl;
+
+  Tarjeta({required this.name, required this.imageUrl});
+
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        double fontSize = constraints.maxWidth * 0.07;
-
-        return Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
-            boxShadow: [
-              BoxShadow(
-                color: laMancha,
-                blurRadius: 5,
-                offset: Offset(0, 2),
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: laMancha,
+            blurRadius: 5,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Card(
+        elevation: 5,
+        margin: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Column(
+          children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.network(imageUrl, fit: BoxFit.cover),
+                ),
               ),
-            ],
-          ),
-          child: Card(
-            elevation: 5,
-            margin: EdgeInsets.zero,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
             ),
-            child: Column(
-              children: [
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Container(
-                        decoration: const BoxDecoration(
-                          image: DecorationImage(
-                            image: AssetImage('assets/images/pressdebanca.jpg'),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+              child: Text(
+                name,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Press de banca',
-                        style: TextStyle(
-                          fontSize: fontSize,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        '80 KG',
-                        style: TextStyle(
-                          fontSize: fontSize,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
-        );
-      },
+          ],
+        ),
+      ),
     );
   }
 }
 
-
-class UserProvider extends ChangeNotifier{
+class UserProvider extends ChangeNotifier {
   Usuario usuarioSup = Usuario(
-        username: "Anonimo",
-        password: "51473f7aa097890b5f14fdea9d5b468fa0aa5d5da1b1d4a6b1ab52ca2bdc0121",
-        profile_image: "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
-      );
-  void guardarImagen(String imagen){
+      username: "Anonimo",
+      password:
+          "51473f7aa097890b5f14fdea9d5b468fa0aa5d5da1b1d4a6b1ab52ca2bdc0121",
+      profile_image:
+          "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png");
+  void guardarImagen(String imagen) {
     usuarioSup.setImagen(imagen);
     notifyListeners();
   }
-  void guardar(){
+
+  void guardar() {
     notifyListeners();
   }
 }
