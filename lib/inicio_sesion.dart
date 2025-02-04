@@ -120,7 +120,7 @@ class _InicioSesionState extends State<InicioSesion> {
                       context.read<UserProvider>().usuarioSup = usuario;
                       context.read<UserProvider>().guardarImagen(photo);
 
-                      Navigator.push(
+                      Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(builder: (context) => MyApp()),
                       );

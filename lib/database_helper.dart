@@ -37,14 +37,15 @@ class DatabaseHelper {
 
     await _database.execute('''
       CREATE TABLE IF NOT EXISTS UsuarioEjercicio (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER,
     ejer_id INTEGER,
     peso INTEGER,
     fecha TEXT,
-    PRIMARY KEY (user_id, ejer_id),
     FOREIGN KEY (user_id) REFERENCES Usuarios(id) ON DELETE CASCADE,
     FOREIGN KEY (ejer_id) REFERENCES Ejercicios(id) ON DELETE CASCADE
-  )
+);
+
     ''');
   }
 
@@ -151,7 +152,7 @@ class DatabaseHelper {
     ),
     Ejercicio(
       ejername: "Curl con Barra", 
-      ejercice_image: "https://static.strengthlevel.com/images/exercises/barbell-curl/barbell-curl-800.avif",
+      ejercice_image: "https://static.strengthlevel.com/images/exercises/barbell-curl/barbell-curl-800.jpg",
     ),
   ];
 
@@ -159,7 +160,6 @@ class DatabaseHelper {
     await insertEjer(ejercicio);
   }
 
-  print("✅ Ejercicios de ejemplo insertados correctamente.");
 }
 
 

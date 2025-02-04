@@ -177,7 +177,7 @@ class _RegistroUsuarioState extends State<RegistroUsuario> {
 
                       _dbHelper.insertUser(usuario);
 
-                      Navigator.push(
+                      Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(builder: (context) => MyApp()),
                       );

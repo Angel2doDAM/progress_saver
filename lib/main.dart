@@ -49,13 +49,13 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> _initializeDatabase() async {
     await _dbHelper.initializeDatabase();
     Usuario usuario = new Usuario(username: "Admin", password: "51473f7aa097890b5f14fdea9d5b468fa0aa5d5da1b1d4a6b1ab52ca2bdc0121", isadmin: 1);
-    _dbHelper.insertUser(usuario);
+    /*_dbHelper.insertUser(usuario);
     await _dbHelper.insertarEjerciciosDeEjemplo();
     await _dbHelper.assignExerciseToUserWithDetails(1, 1, 50);
     await _dbHelper.assignExerciseToUserWithDetails(1, 2, 50);
     await _dbHelper.assignExerciseToUserWithDetails(1, 3, 50);
     await _dbHelper.assignExerciseToUserWithDetails(1, 4, 50);
-    await _dbHelper.assignExerciseToUserWithDetails(1, 5, 50);
+    await _dbHelper.assignExerciseToUserWithDetails(1, 5, 50);*/
 
     _loadExercisesForUser(context.read<UserProvider>().usuarioSup.getNombre());
   }
