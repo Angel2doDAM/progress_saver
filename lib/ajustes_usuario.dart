@@ -11,69 +11,67 @@ class Ajustes extends StatefulWidget {
 }
 
 class _AjustesState extends State<Ajustes> {
-    final DatabaseHelper _dbHelper = DatabaseHelper();
+  final DatabaseHelper _dbHelper = DatabaseHelper();
   final TextEditingController nombreController = TextEditingController();
   final TextEditingController contraController = TextEditingController();
   final TextEditingController _textController = TextEditingController();
+
   void _showCustomAlert(BuildContext context) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text("Foto de perfil"),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text("Elija la imagen para su usuario:"),
-            SizedBox(height: 10),
-            TextField(
-              controller: _textController,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: "Pega URL aquí",
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Foto de perfil"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text("Elija la imagen para su usuario:"),
+              SizedBox(height: 10),
+              TextField(
+                controller: _textController,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: "Pega URL aquí",
+                ),
               ),
+            ],
+          ),
+          actions: [
+            ElevatedButton(
+              onPressed: () async {
+                try {
+                  Uri uri = Uri.parse(_textController.text);
+                  if ((await get(uri)).statusCode == 200) {
+                    await _dbHelper.initializeDatabase();
+                    String inputText = _textController.text;
+
+                    // Actualiza la imagen en UserProvider
+                    context.read<UserProvider>().guardarImagen(inputText);
+
+                    // Actualiza la imagen en la base de datos
+                    await _dbHelper.updateUserProfileImage(
+                      context.read<UserProvider>().usuarioSup.getNombre(),
+                      inputText
+                    );
+
+                    setState(() {});
+
+                    Navigator.of(context).pop();
+                  }
+                } catch (e) {
+                  setState(() {});
+                }
+              },
+              child: Text("Aceptar"),
             ),
           ],
-        ),
-        actions: [
-          ElevatedButton(
-            onPressed: () async {
-              try{
-              Uri uri = Uri.parse(_textController.text);
-              if((await get(uri)).statusCode == 200){
-                await _dbHelper.initializeUsuariosDatabase();
-              String inputText = _textController.text;
-
-              // Actualiza la imagen en UserProvider
-              context.read<UserProvider>().guardarImagen(inputText);
-
-              // Actualiza la imagen en la base de datos
-              await _dbHelper.updateUserProfileImage(
-                context.read<UserProvider>().usuarioSup.getNombre(), 
-                inputText
-              );
-
-              setState(() {});
-
-              Navigator.of(context).pop();
-              }
-              }catch(e){
-                setState(() {
-                });
-              }
-            },
-            child: Text("Aceptar"),
-          ),
-        ],
-      );
-    },
-  );
-}
-
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       backgroundColor: fondoColor,
       appBar: AppBar(
@@ -102,11 +100,9 @@ class _AjustesState extends State<Ajustes> {
       body: const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-          ],
+          children: [],
         ),
       ),
     );
   }
 }
-

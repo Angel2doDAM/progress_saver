@@ -5,20 +5,19 @@ import 'package:progress_saver/usuario.dart';
 import 'package:progress_saver/ejercicio.dart';
 
 class DatabaseHelper {
-  late Database _dbUsuarios;
-  late Database _dbEjercicios;
-  late Database _dbUsuarioEjercicio;
+  late Database _database;
 
-  // Inicializar base de datos de Usuarios
-  Future<void> initializeUsuariosDatabase() async {
+  // Inicializar la base de datos única
+  Future<void> initializeDatabase() async {
     sqfliteFfiInit();
     databaseFactory = databaseFactoryFfi;
 
     final directory = Directory.current;
-    final dbUsuariosPath = join(directory.path, "base_de_datos", 'usuarios.db');
-    _dbUsuarios = await databaseFactory.openDatabase(dbUsuariosPath);
+    final dbPath = join(directory.path, "base_de_datos", 'progress_saver.db');
+    _database = await databaseFactory.openDatabase(dbPath);
 
-    await _dbUsuarios.execute('''
+    // Crear tablas dentro de la misma base de datos
+    await _database.execute('''
       CREATE TABLE IF NOT EXISTS Usuarios (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT UNIQUE,
@@ -27,32 +26,61 @@ class DatabaseHelper {
         profile_image TEXT
       )
     ''');
+
+    await _database.execute('''
+      CREATE TABLE IF NOT EXISTS Ejercicios (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        ejername TEXT UNIQUE,
+        ejercice_image TEXT
+      )
+    ''');
+
+    await _database.execute('''
+      CREATE TABLE IF NOT EXISTS UsuarioEjercicio (
+    user_id INTEGER,
+    ejer_id INTEGER,
+    peso INTEGER,
+    fecha TEXT,
+    PRIMARY KEY (user_id, ejer_id),
+    FOREIGN KEY (user_id) REFERENCES Usuarios(id) ON DELETE CASCADE,
+    FOREIGN KEY (ejer_id) REFERENCES Ejercicios(id) ON DELETE CASCADE
+  )
+    ''');
   }
 
   // Insertar un usuario
   Future<int> insertUser(Usuario usuario) async {
-    return await _dbUsuarios.insert('Usuarios', usuario.toMap());
+    return await _database.insert('Usuarios', usuario.toMap());
   }
 
   // Obtener el ID de un usuario por su nombre
   Future<int?> getUserIdByUsername(String username) async {
-    final result = await _dbUsuarios.query(
+    final result = await _database.query(
       'Usuarios',
       columns: ['id'],
       where: 'username = ?',
       whereArgs: [username],
     );
 
-    // Si el usuario existe, devolver su ID, si no, devolver null
-    if (result.isNotEmpty) {
-      return result.first['id'] as int;
-    }
-    return null; // Si no se encuentra el usuario
+    return result.isNotEmpty ? result.first['id'] as int : null;
   }
+
+   // Devuelve true si encontró al menos un usuario con ese nombre
+  Future<bool> userExists(String username) async {
+  final result = await _database.query(
+    'Usuarios',
+    columns: ['id'],
+    where: 'username = ?',
+    whereArgs: [username],
+  );
+
+  return result.isNotEmpty;
+}
+
 
   // Validar un usuario
   Future<Usuario?> validateUser(String username, String password) async {
-    final result = await _dbUsuarios.query(
+    final result = await _database.query(
       'Usuarios',
       where: 'username = ? AND password = ?',
       whereArgs: [username, password],
@@ -62,12 +90,12 @@ class DatabaseHelper {
 
   // Eliminar un usuario
   Future<int> deleteUser(String username) async {
-    return await _dbUsuarios.delete('Usuarios', where: 'username = ?', whereArgs: [username]);
+    return await _database.delete('Usuarios', where: 'username = ?', whereArgs: [username]);
   }
 
   // Verificar si un usuario es admin
   Future<bool> isUserAdmin(String username) async {
-    final result = await _dbUsuarios.query(
+    final result = await _database.query(
       'Usuarios',
       columns: ['isadmin'],
       where: 'username = ?',
@@ -78,7 +106,7 @@ class DatabaseHelper {
 
   // Actualizar imagen de perfil de usuario
   Future<int> updateUserProfileImage(String username, String profileImagePath) async {
-    return await _dbUsuarios.update(
+    return await _database.update(
       'Usuarios',
       {'profile_image': profileImagePath},
       where: 'username = ?',
@@ -88,40 +116,56 @@ class DatabaseHelper {
 
   // Obtener imagen de perfil de usuario
   Future<String> getUserProfileImage(String username) async {
-    final List<Map<String, dynamic>> result = await _dbUsuarios.rawQuery(
+    final List<Map<String, dynamic>> result = await _database.rawQuery(
       'SELECT profile_image FROM Usuarios WHERE username = ?',
       [username],
     );
 
-    if (result.isNotEmpty && result.first['profile_image'] != null && result.first['profile_image'].isNotEmpty) {
-      return result.first['profile_image'];
-    }
-    return "No hay foto";
-  }
-
-  // Inicializar base de datos de Ejercicios
-  Future<void> initializeEjerciciosDatabase() async {
-    final directory = Directory.current;
-    final dbEjerciciosPath = join(directory.path, "base_de_datos", 'ejercicios.db');
-    _dbEjercicios = await databaseFactory.openDatabase(dbEjerciciosPath);
-
-    await _dbEjercicios.execute('''
-      CREATE TABLE IF NOT EXISTS Ejercicios (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        ejername TEXT UNIQUE,
-        ejercice_image TEXT
-      )
-    ''');
+    return result.isNotEmpty && result.first['profile_image'] != null && result.first['profile_image'].isNotEmpty
+        ? result.first['profile_image']
+        : "No hay foto";
   }
 
   // Insertar ejercicio
   Future<int> insertEjer(Ejercicio ejercicio) async {
-    return await _dbEjercicios.insert('Ejercicios', ejercicio.toMap());
+    return await _database.insert('Ejercicios', ejercicio.toMap());
   }
+
+  Future<void> insertarEjerciciosDeEjemplo() async {
+  List<Ejercicio> ejerciciosEjemplo = [
+    Ejercicio(
+      ejername: "Press de Banca", 
+      ejercice_image: "https://static.strengthlevel.com/images/exercises/bench-press/bench-press-800.jpg",
+    ),
+    Ejercicio(
+      ejername: "Sentadilla", 
+      ejercice_image: "https://static.strengthlevel.com/images/exercises/squat/squat-800.jpg",
+    ),
+    Ejercicio(
+      ejername: "Peso Muerto", 
+      ejercice_image: "https://static.strengthlevel.com/images/exercises/sumo-deadlift/sumo-deadlift-800.jpg",
+    ),
+    Ejercicio(
+      ejername: "Remo", 
+      ejercice_image: "https://static.strengthlevel.com/images/exercises/machine-row/machine-row-800.jpg",
+    ),
+    Ejercicio(
+      ejername: "Curl con Barra", 
+      ejercice_image: "https://static.strengthlevel.com/images/exercises/barbell-curl/barbell-curl-800.avif",
+    ),
+  ];
+
+  for (var ejercicio in ejerciciosEjemplo) {
+    await insertEjer(ejercicio);
+  }
+
+  print("✅ Ejercicios de ejemplo insertados correctamente.");
+}
+
 
   // Actualizar ejercicio
   Future<int> updateEjer(String ejernameOld, String ejernameNew, String ejerImagePath) async {
-    return await _dbEjercicios.update(
+    return await _database.update(
       'Ejercicios',
       {'ejername': ejernameNew, 'ejercice_image': ejerImagePath},
       where: 'ejername = ?',
@@ -130,56 +174,50 @@ class DatabaseHelper {
   }
 
   // Obtener un ejercicio por su ID
-Future<Map<String, dynamic>?> getExerciseById(int id) async {
-  final result = await _dbEjercicios.query(
-    'Ejercicios',
-    where: 'id = ?',
-    whereArgs: [id],
-  );
+  Future<Map<String, dynamic>?> getExerciseById(int id) async {
+    final result = await _database.query(
+      'Ejercicios',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
 
-  // Si el ejercicio existe, devolver los detalles, sino, devolver null
-  if (result.isNotEmpty) {
-    return result.first;  // Devuelve el primer (y único) registro encontrado
+    return result.isNotEmpty ? result.first : null;
   }
-  return null;  // Si no se encuentra el ejercicio
-}
-
 
   // Eliminar ejercicio
   Future<int> deleteEjer(String ejername) async {
-    return await _dbEjercicios.delete('Ejercicios', where: 'ejername = ?', whereArgs: [ejername]);
+    return await _database.delete('Ejercicios', where: 'ejername = ?', whereArgs: [ejername]);
   }
 
   // Obtener todos los ejercicios
   Future<List<Map<String, dynamic>>> getAllExercises() async {
-    return await _dbEjercicios.query('Ejercicios');
-  }
-
-  // Inicializar base de datos de UsuarioEjercicio
-  Future<void> initializeUsuarioEjercicioDatabase() async {
-    final directory = Directory.current;
-    final dbUsuarioEjercicioPath = join(directory.path, "base_de_datos", 'usuario_ejercicio.db');
-    _dbUsuarioEjercicio = await databaseFactory.openDatabase(dbUsuarioEjercicioPath);
-
-    await _dbUsuarioEjercicio.execute('''
-      CREATE TABLE IF NOT EXISTS UsuarioEjercicio (
-        user_id INTEGER,
-        ejer_id INTEGER,
-        PRIMARY KEY (user_id, ejer_id),
-        FOREIGN KEY (user_id) REFERENCES Usuarios(id) ON DELETE CASCADE,
-        FOREIGN KEY (ejer_id) REFERENCES Ejercicios(id) ON DELETE CASCADE
-      )
-    ''');
+    return await _database.query('Ejercicios');
   }
 
   // Asignar ejercicio a un usuario
   Future<int> assignExerciseToUser(int userId, int ejerId) async {
-    return await _dbUsuarioEjercicio.insert('UsuarioEjercicio', {'user_id': userId, 'ejer_id': ejerId});
+    return await _database.insert('UsuarioEjercicio', {'user_id': userId, 'ejer_id': ejerId});
   }
+
+  // Asignar ejercicio a un usuario con peso y fecha
+  Future<int> assignExerciseToUserWithDetails(int userId, int ejerId, int peso) async {
+    peso ??= 0;
+    String fecha = DateTime.now().toString();
+    Map<String, dynamic> data = {
+      'user_id': userId,
+      'ejer_id': ejerId,
+      'peso': peso,
+      'fecha': fecha,
+    };
+
+    // Insertar los datos en la tabla UsuarioEjercicio
+    return await _database.insert('UsuarioEjercicio', data);
+  }
+
 
   // Eliminar ejercicio asignado a un usuario
   Future<int> removeExerciseFromUser(int userId, int ejerId) async {
-    return await _dbUsuarioEjercicio.delete(
+    return await _database.delete(
       'UsuarioEjercicio',
       where: 'user_id = ? AND ejer_id = ?',
       whereArgs: [userId, ejerId],
@@ -188,7 +226,7 @@ Future<Map<String, dynamic>?> getExerciseById(int id) async {
 
   // Obtener ejercicios de un usuario
   Future<List<int>> getExercisesByUser(int userId) async {
-    final result = await _dbUsuarioEjercicio.query(
+    final result = await _database.query(
       'UsuarioEjercicio',
       columns: ['ejer_id'],
       where: 'user_id = ?',
@@ -197,18 +235,8 @@ Future<Map<String, dynamic>?> getExerciseById(int id) async {
     return result.map((row) => row['ejer_id'] as int).toList();
   }
 
-  // Cerrar base de datos de Usuarios
-  Future<void> closeUsuariosDatabase() async {
-    await _dbUsuarios.close();
-  }
-
-  // Cerrar base de datos de Ejercicios
-  Future<void> closeEjerciciosDatabase() async {
-    await _dbEjercicios.close();
-  }
-
-  // Cerrar base de datos de UsuarioEjercicio
-  Future<void> closeUsuarioEjercicioDatabase() async {
-    await _dbUsuarioEjercicio.close();
+  // Cerrar base de datos
+  Future<void> closeDatabase() async {
+    await _database.close();
   }
 }

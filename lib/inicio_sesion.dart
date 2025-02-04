@@ -17,19 +17,12 @@ class _InicioSesionState extends State<InicioSesion> {
   final TextEditingController nombreController = TextEditingController();
   final TextEditingController contraController = TextEditingController();
 
-  // Función para cifrar la contraseña de forma segura con SHA-256 y salt
   String encryptPassword(String password) {
-    // Salt aleatorio
-    final salt = 'mi_salt_secreto'; 
-
-    // Combina el salt con la contraseña
+    final salt = 'mi_salt_secreto';
     final passwordWithSalt = password + salt;
-
-    // Aplicamos SHA-256
-    final bytes = utf8.encode(passwordWithSalt); // Convierte la cadena a bytes
-    final digest = sha256.convert(bytes); // Obtiene el hash SHA-256
-
-    return digest.toString(); // Devuelve el hash como una cadena hexadecimal
+    final bytes = utf8.encode(passwordWithSalt);
+    final digest = sha256.convert(bytes);
+    return digest.toString();
   }
 
   @override
@@ -37,13 +30,14 @@ class _InicioSesionState extends State<InicioSesion> {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
 
-    double fontSize = screenWidth * 0.08; // 8% del ancho de la pantalla
+    double fontSize = screenWidth * 0.08;
     double maxFontSize = 20.0;
     double maxTittleSize = 60.0;
 
     return Scaffold(
       backgroundColor: fondoColor,
       appBar: AppBar(
+        backgroundColor: azulito,
         title: Text('Inicio de Sesión'),
       ),
       body: Center(
@@ -51,7 +45,6 @@ class _InicioSesionState extends State<InicioSesion> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SizedBox(height: screenHeight * 0.05),
-            // Título
             Text(
               'Inicio de Sesión',
               style: TextStyle(
@@ -61,7 +54,6 @@ class _InicioSesionState extends State<InicioSesion> {
               ),
             ),
             SizedBox(height: screenHeight * 0.1),
-            // TextField para introducir el nombre
             Text("Introduzca su nombre de usuario:",
                 style: TextStyle(
                   fontSize: screenWidth * 0.03 > maxFontSize
@@ -111,24 +103,19 @@ class _InicioSesionState extends State<InicioSesion> {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {
+                if (nombreController.text.isNotEmpty && contraController.text.isNotEmpty) {
+                  await _dbHelper.initializeDatabase();
 
-                if (!nombreController.text.isEmpty && !contraController.text.isEmpty) {
-                  // Inicializa la base de datos
-                  await _dbHelper.initializeUsuariosDatabase();
-
-                  // Obtén el nombre y la contraseña del formulario
                   final username = nombreController.text;
-                  final password = encryptPassword(contraController.text); // Cifra la contraseña
+                  final password = encryptPassword(contraController.text);
 
                   try {
-                    // Intentamos insertar el usuario en la base de datos
                     Usuario? usuario = await _dbHelper.validateUser(username, password);
-                    if(usuario!=null){
+                    if (usuario != null) {
                       final photo = await _dbHelper.getUserProfileImage(username);
-                      // Muestra un mensaje de éxito
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        content: Text('Sesion iniciada placenteramente'),
-                      ));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Sesión iniciada correctamente')),
+                      );
 
                       context.read<UserProvider>().usuarioSup = usuario;
                       context.read<UserProvider>().guardarImagen(photo);
@@ -138,16 +125,14 @@ class _InicioSesionState extends State<InicioSesion> {
                         MaterialPageRoute(builder: (context) => MyApp()),
                       );
                     } else {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: Text('Error: Usuario o contraseña erroneos'),
-                    ));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Error: Usuario o contraseña incorrectos')),
+                      );
                     }
-                    
                   } catch (e) {
-                    // Si hay un error (por ejemplo, el usuario ya existe), mostramos el mensaje correspondiente
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: Text('Error: Algo salio mal'),
-                    ));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error: Algo salió mal')),
+                    );
                   }
                 }
               },
@@ -159,4 +144,3 @@ class _InicioSesionState extends State<InicioSesion> {
     );
   }
 }
-

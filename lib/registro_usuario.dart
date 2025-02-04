@@ -3,15 +3,16 @@ import 'package:provider/provider.dart';
 import 'package:progress_saver/themes/colors.dart';
 import 'package:progress_saver/main.dart';
 import 'package:crypto/crypto.dart';
+import 'package:progress_saver/usuario.dart';
 import 'dart:convert';
 import 'database_helper.dart';
 
-class RegistroUser extends StatefulWidget {
+class RegistroUsuario extends StatefulWidget {
   @override
-  _RegistroUserState createState() => _RegistroUserState();
+  _RegistroUsuarioState createState() => _RegistroUsuarioState();
 }
 
-class _RegistroUserState extends State<RegistroUser> {
+class _RegistroUsuarioState extends State<RegistroUsuario> {
   final DatabaseHelper _dbHelper = DatabaseHelper();
   final TextEditingController nombreController = TextEditingController();
   final TextEditingController contraController = TextEditingController();
@@ -19,21 +20,20 @@ class _RegistroUserState extends State<RegistroUser> {
   String alertaNombre = "";
   String alertaContra = "";
 
-  // Función de validación
-  void validarCampos() {
+  bool esAdmin = false;
+
+  bool validarCampos() {
     setState(() {
-      // Validar Nombre
       final nombre = nombreController.text;
       if (nombre.isEmpty) {
         alertaNombre = "El nombre no puede estar vacío";
-      } else if (!RegExp(r'^[A-ZÁÉÍÓÚÑ][A-Za-záéíóúñ0-9]*$').hasMatch(nombre)) {
+      } else if (!RegExp(r'^[A-ZÁÉÍÓÚÑ][a-záéíóúñ0-9]*$').hasMatch(nombre)) {
         alertaNombre =
-            "El nombre debe comenzar con mayúscula y puede contener números, pero no símbolos.";
+            "El nombre debe comenzar con mayúscula y solo contener letras y números";
       } else {
-        alertaNombre = ""; // Nombre válido
+        alertaNombre = "";
       }
 
-      // Validar Contraseña
       final contra = contraController.text;
       if (contra.isEmpty) {
         alertaContra = "La contraseña no puede estar vacía";
@@ -42,26 +42,21 @@ class _RegistroUserState extends State<RegistroUser> {
       } else if (!RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).*$')
           .hasMatch(contra)) {
         alertaContra =
-            "La contraseña debe tener al menos 1 mayúscula, 1 minúscula, 1 número, y 1 símbolo especial";
+            "La contraseña debe tener al menos 1 mayúscula, minúscula, número y símbolo especial";
       } else {
-        alertaContra = ""; // Contraseña válida
+        alertaContra = "";
       }
     });
+
+    return alertaNombre.isEmpty && alertaContra.isEmpty;
   }
 
-  // Función para cifrar la contraseña de forma segura con SHA-256 y salt
   String encryptPassword(String password) {
-    // Salt aleatorio
-    final salt = 'mi_salt_secreto'; 
-
-    // Combina el salt con la contraseña
+    final salt = 'mi_salt_secreto';
     final passwordWithSalt = password + salt;
-
-    // Aplicamos SHA-256
-    final bytes = utf8.encode(passwordWithSalt); // Convierte la cadena a bytes
-    final digest = sha256.convert(bytes); // Obtiene el hash SHA-256
-
-    return digest.toString(); // Devuelve el hash como una cadena hexadecimal
+    final bytes = utf8.encode(passwordWithSalt);
+    final digest = sha256.convert(bytes);
+    return digest.toString();
   }
 
   @override
@@ -69,23 +64,23 @@ class _RegistroUserState extends State<RegistroUser> {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
 
-    double fontSize = screenWidth * 0.08; // 8% del ancho de la pantalla
+    double fontSize = screenWidth * 0.08;
     double maxFontSize = 20.0;
     double maxTittleSize = 60.0;
 
     return Scaffold(
       backgroundColor: fondoColor,
       appBar: AppBar(
-        title: Text('Registro de usuario'),
+        backgroundColor: azulito,
+        title: Text('Registro de Usuario'),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SizedBox(height: screenHeight * 0.05),
-            // Título
             Text(
-              'Registro de usuario',
+              'Registro de Usuario',
               style: TextStyle(
                 fontSize: fontSize > maxTittleSize ? maxTittleSize : fontSize,
                 fontFamily: 'KeaniaOne',
@@ -93,7 +88,6 @@ class _RegistroUserState extends State<RegistroUser> {
               ),
             ),
             SizedBox(height: screenHeight * 0.1),
-            // TextField para introducir el nombre
             Text("Introduzca su nombre de usuario:",
                 style: TextStyle(
                   fontSize: screenWidth * 0.03 > maxFontSize
@@ -156,39 +150,54 @@ class _RegistroUserState extends State<RegistroUser> {
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-  onPressed: () async {
-    if (nombreController.text.isNotEmpty && contraController.text.isNotEmpty) {
-      await _dbHelper.initializeUsuariosDatabase();
-      final username = nombreController.text;
-      final password = encryptPassword(contraController.text);
+              onPressed: () async {
+                if (validarCampos()) {
+                  await _dbHelper.initializeDatabase();
 
-      context.read<UserProvider>().usuarioSup.setNombre(username);
-      context.read<UserProvider>().usuarioSup.setContrasena(password);
-      context.read<UserProvider>().usuarioSup.setIsAdmin(0);
-      context.read<UserProvider>().guardar();
+                  final username = nombreController.text;
+                  final password = encryptPassword(contraController.text);
 
-      try {
-        await _dbHelper.insertUser(context.read<UserProvider>().usuarioSup);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Usuario registrado exitosamente'),
-        ));
-        Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => MyApp()),
-                );
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Error al registrar usuario'),
-        ));
-      }
-    }
-  },
-  child: Text('Registrar Usuario'),
-),
+                  if (await _dbHelper.userExists(username)) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Usuario ya existente')),
+                    );
+                  } else {
+                    try {
+                      Usuario usuario =
+                          new Usuario(username: username, password: password);
+                      if (esAdmin) {
+                        usuario.setIsAdmin(1);
+                      }
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text('Usuario registrado correctamente')),
+                      );
+                      context.read<UserProvider>().usuarioSup = usuario;
+
+                      _dbHelper.insertUser(usuario);
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => MyApp()),
+                      );
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Error: Algo salió mal')),
+                      );
+                    }
+                  }
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error: Corrige los campos')),
+                  );
+                }
+              },
+              child: Text('Registrar Usuario'),
+            ),
           ],
         ),
       ),
     );
   }
 }
-

@@ -37,67 +37,51 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final DatabaseHelper _dbHelper = DatabaseHelper();
-  
   int _selectedIndex = 0;
   List<Map<String, dynamic>> _exercises = [];
 
   @override
   void initState() {
     super.initState();
-    _initializeDatabases();
-    _assignExercise();
+    _initializeDatabase();
   }
 
-  Future<void> _assignExercise() async {
-    await _dbHelper.assignExerciseToUser(1, 1);
-    await _dbHelper.assignExerciseToUser(1, 2);
-    await _dbHelper.assignExerciseToUser(1, 3);
-  }
+  Future<void> _initializeDatabase() async {
+    await _dbHelper.initializeDatabase();
+    Usuario usuario = new Usuario(username: "Admin", password: "51473f7aa097890b5f14fdea9d5b468fa0aa5d5da1b1d4a6b1ab52ca2bdc0121", isadmin: 1);
+    _dbHelper.insertUser(usuario);
+    await _dbHelper.insertarEjerciciosDeEjemplo();
+    await _dbHelper.assignExerciseToUserWithDetails(1, 1, 50);
+    await _dbHelper.assignExerciseToUserWithDetails(1, 2, 50);
+    await _dbHelper.assignExerciseToUserWithDetails(1, 3, 50);
+    await _dbHelper.assignExerciseToUserWithDetails(1, 4, 50);
+    await _dbHelper.assignExerciseToUserWithDetails(1, 5, 50);
 
-  Future<void> _initializeDatabases() async {
-    await _dbHelper.initializeUsuariosDatabase();
-    await _dbHelper.initializeEjerciciosDatabase();
-    await _dbHelper.initializeUsuarioEjercicioDatabase();
-    _loadExercisesForUser(context.watch<UserProvider>().usuarioSup.getNombre());
+    _loadExercisesForUser(context.read<UserProvider>().usuarioSup.getNombre());
   }
 
   Future<void> _loadExercisesForUser(String username) async {
-  final usuario = await _dbHelper.validateUser(username, '');
-  if (usuario == null) {
-    return;
+    final userId = await _dbHelper.getUserIdByUsername(username);
+    if (userId == null) return;
+    
+    final ejerIds = await _dbHelper.getExercisesByUser(userId);
+    final exercises = <Map<String, dynamic>>[];
+
+    for (var ejerId in ejerIds) {
+      final ejercicio = await _dbHelper.getExerciseById(ejerId);
+      if (ejercicio != null) exercises.add(ejercicio);
+    }
+
+    setState(() {
+      _exercises = exercises;
+    });
   }
-
-  final userId = _dbHelper.getUserIdByUsername(username);
-
-  final ejerIds = await _dbHelper.getExercisesByUser(userId as int);
-
-  final exercises = <Map<String, dynamic>>[];
-
-  for (var ejerId in ejerIds) {
-  final ejercicio = await _dbHelper.getExerciseById(ejerId);
-
-  if (ejercicio != null) {
-    exercises.add(ejercicio);
-  }
-}
-
-  setState(() {
-    _exercises = exercises;
-  });
-}
-
 
   void _onItemTapped(int index) {
     if (index == 2) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => Inicio()),
-      );
+      Navigator.push(context, MaterialPageRoute(builder: (context) => Inicio()));
     } else if (index == 1) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => InicioSesion()),
-      );
+      Navigator.push(context, MaterialPageRoute(builder: (context) => InicioSesion()));
     } else {
       setState(() {
         _selectedIndex = index;
@@ -106,28 +90,13 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _navigateToSettings() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => Ajustes()),
-    );
+    Navigator.push(context, MaterialPageRoute(builder: (context) => Ajustes()));
   }
 
   @override
   Widget build(BuildContext context) {
     double anchoVentana = MediaQuery.of(context).size.width;
-
-    int columnas = 1;
-    if (anchoVentana >= 300 && anchoVentana < 600) {
-      columnas = 2;
-    } else if (anchoVentana > 600 && anchoVentana < 1200) {
-      columnas = 3;
-    } else if (anchoVentana > 1200 && anchoVentana < 1800) {
-      columnas = 4;
-    } else if (anchoVentana > 1800 && anchoVentana < 2400) {
-      columnas = 5;
-    } else if (anchoVentana >= 2400) {
-      columnas = 6;
-    }
+    int columnas = (anchoVentana / 300).clamp(1, 6).toInt();
 
     return Scaffold(
       appBar: AppBar(
@@ -155,41 +124,29 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Container(
         color: fondoColor,
-        child: Column(
-          children: [
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: GridView.builder(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: columnas,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                    childAspectRatio: 3 / 4,
-                  ),
-                  itemCount: _exercises.length,
-                  itemBuilder: (context, index) {
-                    return Tarjeta(
-                      name: _exercises[index]['ejername'],
-                      imageUrl: _exercises[index]['ejercice_image'],
-                    );
-                  },
-                ),
-              ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: GridView.builder(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: columnas,
+              crossAxisSpacing: 16,
+              mainAxisSpacing: 16,
+              childAspectRatio: 3 / 4,
             ),
-          ],
+            itemCount: _exercises.length,
+            itemBuilder: (context, index) {
+              return Tarjeta(
+                name: _exercises[index]['ejername'],
+                imageUrl: _exercises[index]['ejercice_image'],
+              );
+            },
+          ),
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: <BottomNavigationBarItem>[
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.add_box),
-            label: 'New',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.add_box), label: 'New'),
           BottomNavigationBarItem(
             icon: CircleAvatar(
               backgroundImage: NetworkImage(
@@ -219,47 +176,25 @@ class Tarjeta extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          BoxShadow(
-            color: laMancha,
-            blurRadius: 5,
-            offset: Offset(0, 2),
+    return Card(
+      elevation: 5,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      child: Column(
+        children: [
+          Expanded(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.network(imageUrl, fit: BoxFit.cover),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              name,
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
           ),
         ],
-      ),
-      child: Card(
-        elevation: 5,
-        margin: EdgeInsets.zero,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Column(
-          children: [
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.network(imageUrl, fit: BoxFit.cover),
-                ),
-              ),
-            ),
-            Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-              child: Text(
-                name,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -268,10 +203,9 @@ class Tarjeta extends StatelessWidget {
 class UserProvider extends ChangeNotifier {
   Usuario usuarioSup = Usuario(
       username: "Anonimo",
-      password:
-          "51473f7aa097890b5f14fdea9d5b468fa0aa5d5da1b1d4a6b1ab52ca2bdc0121",
-      profile_image:
-          "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png");
+      password: "", 
+      profile_image: "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png");
+  
   void guardarImagen(String imagen) {
     usuarioSup.setImagen(imagen);
     notifyListeners();
