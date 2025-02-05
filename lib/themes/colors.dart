@@ -7,3 +7,4 @@ Color fondoColor = Color(0xFF979696);
 Color laMancha = Color.fromARGB(255, 0, 0, 0);
 Color navegacion = Color.fromRGBO(33, 150, 243, 1);
 Color azulote = Color.fromARGB(255, 44, 174, 174);
+Color mio = Color.fromARGB(209, 231, 249, 255);

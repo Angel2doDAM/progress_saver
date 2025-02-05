@@ -53,13 +53,13 @@ class _MyHomePageState extends State<MyHomePage> {
         password:
             "51473f7aa097890b5f14fdea9d5b468fa0aa5d5da1b1d4a6b1ab52ca2bdc0121",
         isadmin: 1);
-    _dbHelper.insertUser(usuario);
+    /*_dbHelper.insertUser(usuario);
     await _dbHelper.insertarEjerciciosDeEjemplo();
-    await _dbHelper.assignExerciseToUserWithDetails(1, 1, 70);
-    await _dbHelper.assignExerciseToUserWithDetails(1, 2, 70);
-    await _dbHelper.assignExerciseToUserWithDetails(1, 3, 70);
-    await _dbHelper.assignExerciseToUserWithDetails(1, 4, 70);
-    await _dbHelper.assignExerciseToUserWithDetails(1, 5, 70);
+    await _dbHelper.assignExerciseToUserWithDetails(1, 1, 80);
+    await _dbHelper.assignExerciseToUserWithDetails(1, 2, 80);
+    await _dbHelper.assignExerciseToUserWithDetails(1, 3, 80);
+    await _dbHelper.assignExerciseToUserWithDetails(1, 4, 80);
+    await _dbHelper.assignExerciseToUserWithDetails(1, 5, 80);*/
 
     _loadExercisesForUser(context.read<UserProvider>().usuarioSup.getNombre());
   }
@@ -178,36 +178,46 @@ class Tarjeta extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 5,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      child: Column(
-        children: [
-          Expanded(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.network(imageUrl, fit: BoxFit.cover),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  name,
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+    return GestureDetector(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => Ajustes()),
+          );
+        },
+        child: Card(
+          color: mio,
+          elevation: 5,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          child: Column(
+            children: [
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.network(imageUrl, fit: BoxFit.cover),
                 ),
-                Text(
-                  "$peso kg",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      name,
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      "$peso kg",
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
-    );
+        ));
   }
 }
 

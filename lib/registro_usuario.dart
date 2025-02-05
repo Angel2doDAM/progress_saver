@@ -63,14 +63,6 @@ class _RegistroUsuarioState extends State<RegistroUsuario> {
   @override
   Widget build(BuildContext context) {
 
-  _dbHelper.resetAllUsersInitialization();
-    Usuario usuarionull = Usuario(
-      username: "Anonimo",
-      password: "",
-      profile_image:
-          "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png");
-    context.read<UserProvider>().usuarioSup = usuarionull;
-
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
 

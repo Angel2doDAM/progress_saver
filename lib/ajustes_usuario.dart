@@ -55,7 +55,6 @@ class _AjustesState extends State<Ajustes> {
                     );
 
                     setState(() {});
-
                     Navigator.of(context).pop();
                   }
                 } catch (e) {
@@ -72,6 +71,14 @@ class _AjustesState extends State<Ajustes> {
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+
+    double fontSize = screenWidth * 0.04;
+    double tittleSize = screenWidth * 0.08;
+    double columnSize = screenWidth * 0.5;
+
+    double maxFontSize =20.0;
+    double maxTittleSize = 30.0;
     return Scaffold(
       backgroundColor: fondoColor,
       appBar: AppBar(
@@ -97,11 +104,32 @@ class _AjustesState extends State<Ajustes> {
           ],
         ),
       ),
-      body: const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [],
-        ),
+      body: Row(
+        children: [
+          Container(
+            width: columnSize,
+            color: botonColor,
+            padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Sesión", style: TextStyle(fontSize: tittleSize > maxTittleSize ? maxTittleSize : tittleSize, fontWeight: FontWeight.bold)),
+                SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed:() {
+
+                }, 
+                child: Text("Eliminar cuenta", style: TextStyle(fontSize: fontSize > maxFontSize ? maxFontSize : fontSize, fontWeight: FontWeight.bold))),
+                Text("Opción 2", style: TextStyle(fontSize: fontSize > maxFontSize ? maxFontSize : fontSize, fontWeight: FontWeight.bold)),
+                SizedBox(height: 20),
+                Text("Opción 3", style: TextStyle(fontSize: fontSize > maxFontSize ? maxFontSize : fontSize, fontWeight: FontWeight.bold)),
+                SizedBox(height: 20),
+                Text("Opción 4", style: TextStyle(fontSize: fontSize > maxFontSize ? maxFontSize : fontSize, fontWeight: FontWeight.bold)),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
