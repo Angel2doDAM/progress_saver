@@ -48,14 +48,18 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> _initializeDatabase() async {
     await _dbHelper.initializeDatabase();
-    Usuario usuario = new Usuario(username: "Admin", password: "51473f7aa097890b5f14fdea9d5b468fa0aa5d5da1b1d4a6b1ab52ca2bdc0121", isadmin: 1);
-    /*_dbHelper.insertUser(usuario);
+    Usuario usuario = new Usuario(
+        username: "Admin",
+        password:
+            "51473f7aa097890b5f14fdea9d5b468fa0aa5d5da1b1d4a6b1ab52ca2bdc0121",
+        isadmin: 1);
+    _dbHelper.insertUser(usuario);
     await _dbHelper.insertarEjerciciosDeEjemplo();
-    await _dbHelper.assignExerciseToUserWithDetails(1, 1, 50);
-    await _dbHelper.assignExerciseToUserWithDetails(1, 2, 50);
-    await _dbHelper.assignExerciseToUserWithDetails(1, 3, 50);
-    await _dbHelper.assignExerciseToUserWithDetails(1, 4, 50);
-    await _dbHelper.assignExerciseToUserWithDetails(1, 5, 50);*/
+    await _dbHelper.assignExerciseToUserWithDetails(1, 1, 70);
+    await _dbHelper.assignExerciseToUserWithDetails(1, 2, 70);
+    await _dbHelper.assignExerciseToUserWithDetails(1, 3, 70);
+    await _dbHelper.assignExerciseToUserWithDetails(1, 4, 70);
+    await _dbHelper.assignExerciseToUserWithDetails(1, 5, 70);
 
     _loadExercisesForUser(context.read<UserProvider>().usuarioSup.getNombre());
   }
@@ -63,25 +67,20 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> _loadExercisesForUser(String username) async {
     final userId = await _dbHelper.getUserIdByUsername(username);
     if (userId == null) return;
-    
-    final ejerIds = await _dbHelper.getExercisesByUser(userId);
-    final exercises = <Map<String, dynamic>>[];
 
-    for (var ejerId in ejerIds) {
-      final ejercicio = await _dbHelper.getExerciseById(ejerId);
-      if (ejercicio != null) exercises.add(ejercicio);
-    }
-
+    final ejerData = await _dbHelper.getExercisesWithWeightByUser(userId);
     setState(() {
-      _exercises = exercises;
+      _exercises = ejerData;
     });
   }
 
   void _onItemTapped(int index) {
     if (index == 2) {
-      Navigator.push(context, MaterialPageRoute(builder: (context) => Inicio()));
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => Inicio()));
     } else if (index == 1) {
-      Navigator.push(context, MaterialPageRoute(builder: (context) => InicioSesion()));
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => InicioSesion()));
     } else {
       setState(() {
         _selectedIndex = index;
@@ -138,6 +137,8 @@ class _MyHomePageState extends State<MyHomePage> {
               return Tarjeta(
                 name: _exercises[index]['ejername'],
                 imageUrl: _exercises[index]['ejercice_image'],
+                peso: _exercises[index]['peso'] ??
+                    0, // Asegurarse de que el peso no sea nulo
               );
             },
           ),
@@ -171,8 +172,9 @@ class _MyHomePageState extends State<MyHomePage> {
 class Tarjeta extends StatelessWidget {
   final String name;
   final String imageUrl;
+  final int peso; // Agregar peso
 
-  Tarjeta({required this.name, required this.imageUrl});
+  Tarjeta({required this.name, required this.imageUrl, required this.peso});
 
   @override
   Widget build(BuildContext context) {
@@ -189,9 +191,18 @@ class Tarjeta extends StatelessWidget {
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Text(
-              name,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  name,
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  "$peso kg",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ],
             ),
           ),
         ],
@@ -203,9 +214,10 @@ class Tarjeta extends StatelessWidget {
 class UserProvider extends ChangeNotifier {
   Usuario usuarioSup = Usuario(
       username: "Anonimo",
-      password: "", 
-      profile_image: "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png");
-  
+      password: "",
+      profile_image:
+          "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png");
+
   void guardarImagen(String imagen) {
     usuarioSup.setImagen(imagen);
     notifyListeners();

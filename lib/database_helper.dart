@@ -23,7 +23,8 @@ class DatabaseHelper {
         username TEXT UNIQUE,
         password TEXT,
         isadmin INTEGER DEFAULT 0,
-        profile_image TEXT
+        profile_image TEXT,
+        isInicied INTEGER DEFAULT 0
       )
     ''');
 
@@ -76,7 +77,25 @@ class DatabaseHelper {
   );
 
   return result.isNotEmpty;
-}
+  }
+
+  // Método para actualizar el estado de inicialización de un usuario
+  Future<int> updateUserInitialization(String username, int isInicied) async {
+    return await _database.update(
+      'Usuarios',
+      {'isInicied': isInicied},
+      where: 'username = ?',
+      whereArgs: [username],
+    );
+  }
+
+  // Método para establecer isInicied en 0 para todos los usuarios
+  Future<int> resetAllUsersInitialization() async {
+    return await _database.update(
+      'Usuarios',
+      {'isInicied': 0},
+    );
+  }
 
 
   // Validar un usuario
@@ -239,4 +258,22 @@ class DatabaseHelper {
   Future<void> closeDatabase() async {
     await _database.close();
   }
+
+  Future<List<Map<String, dynamic>>> getExercisesWithWeightByUser(int userId) async {
+  final result = await _database.rawQuery('''
+    SELECT e.id, e.ejername, e.ejercice_image, ue.peso 
+    FROM UsuarioEjercicio ue
+    JOIN Ejercicios e ON ue.ejer_id = e.id
+    WHERE ue.user_id = ?
+    AND ue.fecha = (
+      SELECT MAX(fecha) 
+      FROM UsuarioEjercicio 
+      WHERE user_id = ue.user_id AND ejer_id = ue.ejer_id
+    )
+  ''', [userId]);
+
+  return result;
+}
+
+
 }

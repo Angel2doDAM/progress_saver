@@ -27,6 +27,15 @@ class _InicioSesionState extends State<InicioSesion> {
 
   @override
   Widget build(BuildContext context) {
+
+  _dbHelper.resetAllUsersInitialization();
+    Usuario usuarionull = Usuario(
+      username: "Anonimo",
+      password: "",
+      profile_image:
+          "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png");
+    context.read<UserProvider>().usuarioSup = usuarionull;
+
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
 
@@ -112,6 +121,7 @@ class _InicioSesionState extends State<InicioSesion> {
                   try {
                     Usuario? usuario = await _dbHelper.validateUser(username, password);
                     if (usuario != null) {
+                      _dbHelper.updateUserInitialization(username, 1);
                       final photo = await _dbHelper.getUserProfileImage(username);
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('Sesión iniciada correctamente')),

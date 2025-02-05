@@ -1,14 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:progress_saver/main.dart';
 import 'package:progress_saver/themes/colors.dart';
 import 'package:progress_saver/inicio_sesion.dart';
 import 'package:progress_saver/registro_usuario.dart';
+import 'package:progress_saver/usuario.dart';
 import 'database_helper.dart';
+import 'package:provider/provider.dart';
 
 class Inicio extends StatelessWidget {
   final DatabaseHelper _dbHelper = DatabaseHelper();
 
   @override
   Widget build(BuildContext context) {
+
+    _dbHelper.resetAllUsersInitialization();
+    Usuario usuarionull = Usuario(
+      username: "Anonimo",
+      password: "",
+      profile_image:
+          "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png");
+    context.read<UserProvider>().usuarioSup = usuarionull;
+
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
 
