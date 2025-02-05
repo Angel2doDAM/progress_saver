@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:progress_saver/themes/colors.dart';
 import 'package:progress_saver/main.dart';
-import 'database_helper.dart';
+import 'database/database_helper.dart';
 import 'package:http/http.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class Ajustes extends StatefulWidget {
   @override
@@ -21,17 +22,17 @@ class _AjustesState extends State<Ajustes> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Foto de perfil"),
+          title: Text(AppLocalizations.of(context)!.profilePhoto),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text("Elija la imagen para su usuario:"),
+              Text(AppLocalizations.of(context)!.choseImage),
               SizedBox(height: 10),
               TextField(
                 controller: _textController,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(),
-                  hintText: "Pega URL aquí",
+                  hintText: AppLocalizations.of(context)!.pasteUrl,
                 ),
               ),
             ],
@@ -61,7 +62,7 @@ class _AjustesState extends State<Ajustes> {
                   setState(() {});
                 }
               },
-              child: Text("Aceptar"),
+              child: Text(AppLocalizations.of(context)!.accept),
             ),
           ],
         );
@@ -98,7 +99,7 @@ class _AjustesState extends State<Ajustes> {
             ),
             SizedBox(width: 10),
             Text(
-              'Ajustes',
+              AppLocalizations.of(context)!.settings,
               style: TextStyle(color: laMancha),
             ),
           ],
@@ -114,7 +115,7 @@ class _AjustesState extends State<Ajustes> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Sesión", style: TextStyle(fontSize: tittleSize > maxTittleSize ? maxTittleSize : tittleSize, fontWeight: FontWeight.bold)),
+                Text(AppLocalizations.of(context)!.session, style: TextStyle(fontSize: tittleSize > maxTittleSize ? maxTittleSize : tittleSize, fontWeight: FontWeight.bold)),
                 SizedBox(height: 20),
                 ElevatedButton(
                   onPressed:() {

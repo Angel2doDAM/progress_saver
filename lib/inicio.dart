@@ -4,8 +4,9 @@ import 'package:progress_saver/themes/colors.dart';
 import 'package:progress_saver/inicio_sesion.dart';
 import 'package:progress_saver/registro_usuario.dart';
 import 'package:progress_saver/usuario.dart';
-import 'database_helper.dart';
+import 'database/database_helper.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class Inicio extends StatelessWidget {
   final DatabaseHelper _dbHelper = DatabaseHelper();
@@ -44,7 +45,7 @@ class Inicio extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             Text(
-              'Progress Saver',
+              AppLocalizations.of(context)!.tittle,
               style: TextStyle(
                 fontSize: fontSize > maxTittleSize ? maxTittleSize : fontSize,
                 fontFamily: 'KeaniaOne',
@@ -76,7 +77,7 @@ class Inicio extends StatelessWidget {
                 ),
               ),
               child: Text(
-                'Iniciar Sesión',
+                AppLocalizations.of(context)!.login,
                 style: TextStyle(
                   fontSize: buttonTextSize > maxFontSize ? maxFontSize : buttonTextSize,
                   fontWeight: FontWeight.bold,
@@ -103,7 +104,7 @@ class Inicio extends StatelessWidget {
                 ),
               ),
               child: Text(
-                'Registrarse',
+                AppLocalizations.of(context)!.register,
                 style: TextStyle(
                   fontSize: buttonTextSize > maxFontSize ? maxFontSize : buttonTextSize,
                   fontWeight: FontWeight.bold,
@@ -115,7 +116,7 @@ class Inicio extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(bottom: 20.0),
               child: Text(
-                'Save your progress, save your life',
+                AppLocalizations.of(context)!.slogan,
                 style: TextStyle(
                   fontSize: screenWidth * 0.04 > maxFontSize ? maxFontSize : screenWidth * 0.04,
                   fontStyle: FontStyle.italic,

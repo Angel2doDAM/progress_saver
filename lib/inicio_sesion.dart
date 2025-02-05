@@ -5,7 +5,8 @@ import 'package:progress_saver/main.dart';
 import 'package:crypto/crypto.dart';
 import 'package:progress_saver/usuario.dart';
 import 'dart:convert';
-import 'database_helper.dart';
+import 'database/database_helper.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class InicioSesion extends StatefulWidget {
   @override
@@ -39,7 +40,7 @@ class _InicioSesionState extends State<InicioSesion> {
       backgroundColor: fondoColor,
       appBar: AppBar(
         backgroundColor: azulito,
-        title: Text('Inicio de Sesión'),
+        title: Text(AppLocalizations.of(context)!.sessionInit),
       ),
       body: Center(
         child: Column(
@@ -47,7 +48,7 @@ class _InicioSesionState extends State<InicioSesion> {
           children: [
             SizedBox(height: screenHeight * 0.05),
             Text(
-              'Inicio de Sesión',
+              AppLocalizations.of(context)!.sessionInit,
               style: TextStyle(
                 fontSize: fontSize > maxTittleSize ? maxTittleSize : fontSize,
                 fontFamily: 'KeaniaOne',
@@ -55,7 +56,7 @@ class _InicioSesionState extends State<InicioSesion> {
               ),
             ),
             SizedBox(height: screenHeight * 0.1),
-            Text("Introduzca su nombre de usuario:",
+            Text(AppLocalizations.of(context)!.enterNickname,
                 style: TextStyle(
                   fontSize: screenWidth * 0.03 > maxFontSize
                       ? maxFontSize
@@ -65,7 +66,7 @@ class _InicioSesionState extends State<InicioSesion> {
             TextField(
               controller: nombreController,
               decoration: InputDecoration(
-                hintText: 'Nombre de usuario',
+                hintText: AppLocalizations.of(context)!.userName,
                 border: OutlineInputBorder(),
                 enabledBorder: OutlineInputBorder(
                   borderSide: BorderSide(color: laMancha),
@@ -78,7 +79,7 @@ class _InicioSesionState extends State<InicioSesion> {
               ),
             ),
             const SizedBox(height: 10),
-            Text("Introduzca su contraseña:",
+            Text(AppLocalizations.of(context)!.enterPasswd,
                 style: TextStyle(
                   fontSize: screenWidth * 0.03 > maxFontSize
                       ? maxFontSize
@@ -89,7 +90,7 @@ class _InicioSesionState extends State<InicioSesion> {
               controller: contraController,
               obscureText: true,
               decoration: InputDecoration(
-                hintText: 'Contraseña',
+                hintText: AppLocalizations.of(context)!.password,
                 border: OutlineInputBorder(),
                 enabledBorder: OutlineInputBorder(
                   borderSide: BorderSide(color: Colors.black),
@@ -116,7 +117,7 @@ class _InicioSesionState extends State<InicioSesion> {
                       _dbHelper.updateUserInitialization(username, 1);
                       final photo = await _dbHelper.getUserProfileImage(username);
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Sesión iniciada correctamente')),
+                        SnackBar(content: Text(AppLocalizations.of(context)!.successfullyLogged)),
                       );
 
                       context.read<UserProvider>().usuarioSup = usuario;
@@ -128,17 +129,17 @@ class _InicioSesionState extends State<InicioSesion> {
                       );
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Error: Usuario o contraseña incorrectos')),
+                        SnackBar(content: Text(AppLocalizations.of(context)!.erroneousUser)),
                       );
                     }
                   } catch (e) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Error: Algo salió mal')),
+                      SnackBar(content: Text(AppLocalizations.of(context)!.somethingWrong)),
                     );
                   }
                 }
               },
-              child: Text('Iniciar Sesión'),
+              child: Text(AppLocalizations.of(context)!.login),
             ),
           ],
         ),

@@ -5,7 +5,8 @@ import 'package:progress_saver/inicio_sesion.dart';
 import 'package:progress_saver/ajustes_usuario.dart';
 import 'package:progress_saver/usuario.dart';
 import 'package:provider/provider.dart';
-import 'database_helper.dart';
+import 'database/database_helper.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 void main() {
   runApp(
@@ -21,7 +22,6 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Flutter Bottom Navigation',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
@@ -146,8 +146,8 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.add_box), label: 'New'),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: AppLocalizations.of(context)!.home),
+          BottomNavigationBarItem(icon: Icon(Icons.add_box), label: AppLocalizations.of(context)!.newo),
           BottomNavigationBarItem(
             icon: CircleAvatar(
               backgroundImage: NetworkImage(
@@ -156,7 +156,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               radius: 20,
             ),
-            label: 'Profile',
+            label: AppLocalizations.of(context)!.profile,
           ),
         ],
         currentIndex: _selectedIndex,

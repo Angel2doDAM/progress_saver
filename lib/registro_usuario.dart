@@ -5,7 +5,8 @@ import 'package:progress_saver/main.dart';
 import 'package:crypto/crypto.dart';
 import 'package:progress_saver/usuario.dart';
 import 'dart:convert';
-import 'database_helper.dart';
+import 'database/database_helper.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class RegistroUsuario extends StatefulWidget {
   @override
@@ -27,23 +28,23 @@ class _RegistroUsuarioState extends State<RegistroUsuario> {
     setState(() {
       final nombre = nombreController.text;
       if (nombre.isEmpty) {
-        alertaNombre = "El nombre no puede estar vacío";
+        alertaNombre = AppLocalizations.of(context)!.emptyName;
       } else if (!RegExp(r'^[A-ZÁÉÍÓÚÑ][a-záéíóúñ0-9]*$').hasMatch(nombre)) {
         alertaNombre =
-            "El nombre debe comenzar con mayúscula y solo contener letras y números";
+            AppLocalizations.of(context)!.badName;
       } else {
         alertaNombre = "";
       }
 
       final contra = contraController.text;
       if (contra.isEmpty) {
-        alertaContra = "La contraseña no puede estar vacía";
+        alertaContra = AppLocalizations.of(context)!.emptyPassword;
       } else if (contra.length < 8) {
-        alertaContra = "La contraseña debe tener al menos 8 caracteres";
+        alertaContra = AppLocalizations.of(context)!.passwordLong;
       } else if (!RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).*$')
           .hasMatch(contra)) {
         alertaContra =
-            "La contraseña debe tener al menos 1 mayúscula, minúscula, número y símbolo especial";
+            AppLocalizations.of(context)!.badPassword;
       } else {
         alertaContra = "";
       }
@@ -74,7 +75,7 @@ class _RegistroUsuarioState extends State<RegistroUsuario> {
       backgroundColor: fondoColor,
       appBar: AppBar(
         backgroundColor: azulito,
-        title: Text('Registro de Usuario'),
+        title: Text(AppLocalizations.of(context)!.userRegistration),
       ),
       body: Center(
         child: Column(
@@ -82,7 +83,7 @@ class _RegistroUsuarioState extends State<RegistroUsuario> {
           children: [
             SizedBox(height: screenHeight * 0.05),
             Text(
-              'Registro de Usuario',
+              AppLocalizations.of(context)!.userRegistration,
               style: TextStyle(
                 fontSize: fontSize > maxTittleSize ? maxTittleSize : fontSize,
                 fontFamily: 'KeaniaOne',
@@ -90,7 +91,7 @@ class _RegistroUsuarioState extends State<RegistroUsuario> {
               ),
             ),
             SizedBox(height: screenHeight * 0.1),
-            Text("Introduzca su nombre de usuario:",
+            Text(AppLocalizations.of(context)!.enterNickname,
                 style: TextStyle(
                   fontSize: screenWidth * 0.03 > maxFontSize
                       ? maxFontSize
@@ -100,7 +101,7 @@ class _RegistroUsuarioState extends State<RegistroUsuario> {
             TextField(
               controller: nombreController,
               decoration: InputDecoration(
-                hintText: 'Nombre de usuario',
+                hintText: AppLocalizations.of(context)!.userName,
                 border: OutlineInputBorder(),
                 enabledBorder: OutlineInputBorder(
                   borderSide: BorderSide(color: laMancha),
@@ -120,7 +121,7 @@ class _RegistroUsuarioState extends State<RegistroUsuario> {
               ),
             ),
             const SizedBox(height: 10),
-            Text("Introduzca su contraseña:",
+            Text(AppLocalizations.of(context)!.enterPasswd,
                 style: TextStyle(
                   fontSize: screenWidth * 0.03 > maxFontSize
                       ? maxFontSize
@@ -131,7 +132,7 @@ class _RegistroUsuarioState extends State<RegistroUsuario> {
               controller: contraController,
               obscureText: true,
               decoration: InputDecoration(
-                hintText: 'Contraseña',
+                hintText: AppLocalizations.of(context)!.password,
                 border: OutlineInputBorder(),
                 enabledBorder: OutlineInputBorder(
                   borderSide: BorderSide(color: Colors.black),
@@ -161,8 +162,8 @@ class _RegistroUsuarioState extends State<RegistroUsuario> {
 
                   if (await _dbHelper.userExists(username)) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Usuario ya existente')),
+                      SnackBar(
+                        content: Text(AppLocalizations.of(context)!.existingUser)),
                     );
                   } else {
                     try {
@@ -173,8 +174,8 @@ class _RegistroUsuarioState extends State<RegistroUsuario> {
                         usuario.setIsInicied(true);
                       }
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content: Text('Usuario registrado correctamente')),
+                        SnackBar(
+                            content: Text(AppLocalizations.of(context)!.correctUser)),
                       );
                       context.read<UserProvider>().usuarioSup = usuario;
 
@@ -186,17 +187,17 @@ class _RegistroUsuarioState extends State<RegistroUsuario> {
                       );
                     } catch (e) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Error: Algo salió mal')),
+                        SnackBar(content: Text(AppLocalizations.of(context)!.somethingWrong)),
                       );
                     }
                   }
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Error: Corrige los campos')),
+                    SnackBar(content: Text(AppLocalizations.of(context)!.errorCorrectFields)),
                   );
                 }
               },
-              child: Text('Registrar Usuario'),
+              child: Text(AppLocalizations.of(context)!.registerUser),
             ),
           ],
         ),
