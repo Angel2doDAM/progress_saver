@@ -1,19 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:progress_saver/main.dart';
-import 'package:progress_saver/themes/colors.dart';
-import 'package:progress_saver/inicio_sesion.dart';
-import 'package:progress_saver/registro_usuario.dart';
-import 'package:progress_saver/usuario.dart';
-import 'database/database_helper.dart';
-import 'package:provider/provider.dart';
+import 'package:progress_saver/view/inicio_sesion.dart';
+import 'package:progress_saver/view/registro_usuario.dart';
+import 'package:progress_saver/database/database_helper.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:progress_saver/themes/colors.dart'; // Asegúrate de importar los colores que definiste.
 
 class Inicio extends StatelessWidget {
   final DatabaseHelper _dbHelper = DatabaseHelper();
 
   @override
   Widget build(BuildContext context) {
-
     _dbHelper.resetAllUsersInitialization();
 
     double screenWidth = MediaQuery.of(context).size.width;
@@ -32,8 +28,17 @@ class Inicio extends StatelessWidget {
     double maxFontSize = 40.0;
     double maxTittleSize = 60.0;
 
+    // Obtener el modo actual (claro/oscuro)
+    bool isLightMode = Theme.of(context).brightness == Brightness.light;
+
+    // Obtener los colores correspondientes según el modo actual
+    final fondoColor = isLightMode ? LightColors.fondoColor : DarkColors.fondoColor;
+    final azulito = isLightMode ? LightColors.azulito : DarkColors.azulito;
+    final botonColor = isLightMode ? LightColors.botonColor : DarkColors.botonColor;
+    final azulote = isLightMode ? LightColors.azulote : DarkColors.azulote;
+
     return Scaffold(
-      backgroundColor: fondoColor,
+      backgroundColor: fondoColor,  // Fondo según el tema
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -49,7 +54,7 @@ class Inicio extends StatelessWidget {
               style: TextStyle(
                 fontSize: fontSize > maxTittleSize ? maxTittleSize : fontSize,
                 fontFamily: 'KeaniaOne',
-                color: azulito,
+                color: azulito,  // Color según el tema
               ),
             ),
             const SizedBox(height: 20),
@@ -62,26 +67,25 @@ class Inicio extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => InicioSesion()),
-                      );
+                  context,
+                  MaterialPageRoute(builder: (context) => InicioSesion()),
+                );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: botonColor,
+                backgroundColor: botonColor,  // Color de fondo del botón
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
                 minimumSize: Size(
-                    buttonWidth > maxButtonWidth ? maxButtonWidth : buttonWidth, 
-                    buttonHeight > maxButtonHeight ? maxButtonHeight : buttonHeight
-                ),
+                    buttonWidth > maxButtonWidth ? maxButtonWidth : buttonWidth,
+                    buttonHeight > maxButtonHeight ? maxButtonHeight : buttonHeight),
               ),
               child: Text(
                 AppLocalizations.of(context)!.login,
                 style: TextStyle(
                   fontSize: buttonTextSize > maxFontSize ? maxFontSize : buttonTextSize,
                   fontWeight: FontWeight.bold,
-                  color: azulote
+                  color: azulote,  // Color del texto del botón
                 ),
               ),
             ),
@@ -94,21 +98,20 @@ class Inicio extends StatelessWidget {
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: botonColor,
+                backgroundColor: botonColor,  // Color de fondo del botón
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
                 minimumSize: Size(
-                    buttonWidth > maxButtonWidth ? maxButtonWidth : buttonWidth, 
-                    buttonHeight > maxButtonHeight ? maxButtonHeight : buttonHeight
-                ),
+                    buttonWidth > maxButtonWidth ? maxButtonWidth : buttonWidth,
+                    buttonHeight > maxButtonHeight ? maxButtonHeight : buttonHeight),
               ),
               child: Text(
                 AppLocalizations.of(context)!.register,
                 style: TextStyle(
                   fontSize: buttonTextSize > maxFontSize ? maxFontSize : buttonTextSize,
                   fontWeight: FontWeight.bold,
-                  color: azulote
+                  color: azulote,  // Color del texto del botón
                 ),
               ),
             ),

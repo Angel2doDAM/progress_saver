@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:progress_saver/themes/colors.dart';
-import 'package:progress_saver/main.dart';
+import 'package:progress_saver/viewmodel/user_provider.dart';
+import 'package:progress_saver/view/home.dart';
 import 'package:crypto/crypto.dart';
-import 'package:progress_saver/usuario.dart';
+import 'package:progress_saver/model/usuario.dart';
 import 'dart:convert';
-import 'database/database_helper.dart';
+import '../database/database_helper.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class InicioSesion extends StatefulWidget {
@@ -28,7 +29,6 @@ class _InicioSesionState extends State<InicioSesion> {
 
   @override
   Widget build(BuildContext context) {
-
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
 
@@ -36,10 +36,20 @@ class _InicioSesionState extends State<InicioSesion> {
     double maxFontSize = 20.0;
     double maxTittleSize = 60.0;
 
+    // Obtener si estamos en modo claro u oscuro
+    bool isLightMode = Theme.of(context).brightness == Brightness.light;
+
+    // Obtener los colores según el modo
+    final fondoColor = isLightMode ? LightColors.fondoColor : DarkColors.fondoColor;
+    final azulito = isLightMode ? LightColors.azulito : DarkColors.azulito;
+    final botonColor = isLightMode ? LightColors.botonColor : DarkColors.botonColor;
+    final laMancha = isLightMode ? LightColors.laMancha : DarkColors.laMancha;
+    final logo = isLightMode ? LightColors.logo : DarkColors.logo;
+
     return Scaffold(
-      backgroundColor: fondoColor,
+      backgroundColor: fondoColor,  // Fondo según el modo
       appBar: AppBar(
-        backgroundColor: azulito,
+        backgroundColor: azulito,  // Color del AppBar
         title: Text(AppLocalizations.of(context)!.sessionInit),
       ),
       body: Center(
@@ -52,7 +62,7 @@ class _InicioSesionState extends State<InicioSesion> {
               style: TextStyle(
                 fontSize: fontSize > maxTittleSize ? maxTittleSize : fontSize,
                 fontFamily: 'KeaniaOne',
-                color: azulito,
+                color: logo,  // Color del título
               ),
             ),
             SizedBox(height: screenHeight * 0.1),
@@ -93,10 +103,10 @@ class _InicioSesionState extends State<InicioSesion> {
                 hintText: AppLocalizations.of(context)!.password,
                 border: OutlineInputBorder(),
                 enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.black),
+                  borderSide: BorderSide(color: laMancha),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.black, width: 2.0),
+                  borderSide: BorderSide(color: laMancha, width: 2.0),
                 ),
                 fillColor: azulito,
                 filled: true,
@@ -125,7 +135,7 @@ class _InicioSesionState extends State<InicioSesion> {
 
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (context) => MyApp()),
+                        MaterialPageRoute(builder: (context) => MyHomePage()),
                       );
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -140,6 +150,9 @@ class _InicioSesionState extends State<InicioSesion> {
                 }
               },
               child: Text(AppLocalizations.of(context)!.login),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: botonColor,  // Color del botón
+              ),
             ),
           ],
         ),

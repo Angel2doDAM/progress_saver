@@ -29,5 +29,6 @@
   "profile": "Profile",
   "newo": "New",
   "home": "Home",
-  "session": "Session"
+  "session": "Session",
+  "interface": "Interface"
 }

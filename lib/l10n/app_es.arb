@@ -29,5 +29,8 @@
   "profile": "Perfil",
   "newo": "Agregar",
   "home": "Inicio",
-  "session": "Sesión"
+  "session": "Sesión",
+  "interface": "Interfaz",
+  "lenguaje" : "Idioma",
+  "deleteAcount": "Eliminar cuenta"
 }

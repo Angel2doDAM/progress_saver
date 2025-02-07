@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:progress_saver/themes/colors.dart';
-import 'package:progress_saver/main.dart';
+import 'package:progress_saver/view/home.dart';
+import 'package:progress_saver/viewmodel/user_provider.dart';
 import 'package:crypto/crypto.dart';
-import 'package:progress_saver/usuario.dart';
+import 'package:progress_saver/model/usuario.dart';
 import 'dart:convert';
-import 'database/database_helper.dart';
+import '../database/database_helper.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class RegistroUsuario extends StatefulWidget {
@@ -71,10 +72,21 @@ class _RegistroUsuarioState extends State<RegistroUsuario> {
     double maxFontSize = 20.0;
     double maxTittleSize = 60.0;
 
+    // Obtener si estamos en modo claro u oscuro
+    bool isLightMode = Theme.of(context).brightness == Brightness.light;
+
+    // Obtener los colores según el modo
+    final fondoColor = isLightMode ? LightColors.fondoColor : DarkColors.fondoColor;
+    final azulito = isLightMode ? LightColors.azulito : DarkColors.azulito;
+    final botonColor = isLightMode ? LightColors.botonColor : DarkColors.botonColor;
+    final laMancha = isLightMode ? LightColors.laMancha : DarkColors.laMancha;
+    final errorColor = isLightMode ? LightColors.errorColor : DarkColors.errorColor;
+    final logo = isLightMode ? LightColors.logo : DarkColors.logo;
+
     return Scaffold(
-      backgroundColor: fondoColor,
+      backgroundColor: fondoColor,  // Fondo según el modo
       appBar: AppBar(
-        backgroundColor: azulito,
+        backgroundColor: azulito,  // Color del AppBar
         title: Text(AppLocalizations.of(context)!.userRegistration),
       ),
       body: Center(
@@ -87,7 +99,7 @@ class _RegistroUsuarioState extends State<RegistroUsuario> {
               style: TextStyle(
                 fontSize: fontSize > maxTittleSize ? maxTittleSize : fontSize,
                 fontFamily: 'KeaniaOne',
-                color: azulito,
+                color: logo,  // Color del título
               ),
             ),
             SizedBox(height: screenHeight * 0.1),
@@ -180,10 +192,11 @@ class _RegistroUsuarioState extends State<RegistroUsuario> {
                       context.read<UserProvider>().usuarioSup = usuario;
 
                       _dbHelper.insertUser(usuario);
+                      _dbHelper.setIsInicied(username);
 
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (context) => MyApp()),
+                        MaterialPageRoute(builder: (context) => MyHomePage()),
                       );
                     } catch (e) {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -198,6 +211,9 @@ class _RegistroUsuarioState extends State<RegistroUsuario> {
                 }
               },
               child: Text(AppLocalizations.of(context)!.registerUser),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: botonColor,  // Color del botón
+              ),
             ),
           ],
         ),

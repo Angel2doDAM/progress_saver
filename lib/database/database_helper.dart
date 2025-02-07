@@ -1,11 +1,11 @@
 import 'dart:io';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:path/path.dart';
-import 'package:progress_saver/usuario.dart';
-import 'package:progress_saver/ejercicio.dart';
+import 'package:progress_saver/model/usuario.dart';
+import 'package:progress_saver/model/ejercicio.dart';
 
 class DatabaseHelper {
-  late Database _database;
+  static late Database _database;
 
   // Inicializar la base de datos única
   Future<void> initializeDatabase() async {
@@ -67,16 +67,16 @@ class DatabaseHelper {
     return result.isNotEmpty ? result.first['id'] as int : null;
   }
 
-   // Devuelve true si encontró al menos un usuario con ese nombre
+  // Devuelve true si encontró al menos un usuario con ese nombre
   Future<bool> userExists(String username) async {
-  final result = await _database.query(
-    'Usuarios',
-    columns: ['id'],
-    where: 'username = ?',
-    whereArgs: [username],
-  );
+    final result = await _database.query(
+      'Usuarios',
+      columns: ['id'],
+      where: 'username = ?',
+      whereArgs: [username],
+    );
 
-  return result.isNotEmpty;
+    return result.isNotEmpty;
   }
 
   // Método para actualizar el estado de inicialización de un usuario
@@ -97,6 +97,17 @@ class DatabaseHelper {
     );
   }
 
+  // Extablecer el iniciado en true
+  Future<int> setIsInicied(
+    String username,
+  ) async {
+    return await _database.update(
+      'Usuarios',
+      {'isInicied': 1},
+      where: 'username = ?',
+      whereArgs: [username],
+    );
+  }
 
   // Validar un usuario
   Future<Usuario?> validateUser(String username, String password) async {
@@ -110,7 +121,8 @@ class DatabaseHelper {
 
   // Eliminar un usuario
   Future<int> deleteUser(String username) async {
-    return await _database.delete('Usuarios', where: 'username = ?', whereArgs: [username]);
+    return await _database
+        .delete('Usuarios', where: 'username = ?', whereArgs: [username]);
   }
 
   // Verificar si un usuario es admin
@@ -124,8 +136,20 @@ class DatabaseHelper {
     return result.isNotEmpty && result.first['isadmin'] == 1;
   }
 
+  Future<Usuario?> getUserWithIsInicied() async {
+    final result = await _database.query(
+      'Usuarios',
+      where: 'isInicied = ?',
+      whereArgs: [1],
+      limit: 1,
+    );
+
+    return result.isNotEmpty ? Usuario.fromMap(result.first) : null;
+  }
+
   // Actualizar imagen de perfil de usuario
-  Future<int> updateUserProfileImage(String username, String profileImagePath) async {
+  Future<int> updateUserProfileImage(
+      String username, String profileImagePath) async {
     return await _database.update(
       'Usuarios',
       {'profile_image': profileImagePath},
@@ -141,7 +165,9 @@ class DatabaseHelper {
       [username],
     );
 
-    return result.isNotEmpty && result.first['profile_image'] != null && result.first['profile_image'].isNotEmpty
+    return result.isNotEmpty &&
+            result.first['profile_image'] != null &&
+            result.first['profile_image'].isNotEmpty
         ? result.first['profile_image']
         : "No hay foto";
   }
@@ -152,38 +178,42 @@ class DatabaseHelper {
   }
 
   Future<void> insertarEjerciciosDeEjemplo() async {
-  List<Ejercicio> ejerciciosEjemplo = [
-    Ejercicio(
-      ejername: "Press de Banca", 
-      ejercice_image: "https://static.strengthlevel.com/images/exercises/bench-press/bench-press-800.jpg",
-    ),
-    Ejercicio(
-      ejername: "Sentadilla", 
-      ejercice_image: "https://static.strengthlevel.com/images/exercises/squat/squat-800.jpg",
-    ),
-    Ejercicio(
-      ejername: "Peso Muerto", 
-      ejercice_image: "https://static.strengthlevel.com/images/exercises/sumo-deadlift/sumo-deadlift-800.jpg",
-    ),
-    Ejercicio(
-      ejername: "Remo", 
-      ejercice_image: "https://static.strengthlevel.com/images/exercises/machine-row/machine-row-800.jpg",
-    ),
-    Ejercicio(
-      ejername: "Curl con Barra", 
-      ejercice_image: "https://static.strengthlevel.com/images/exercises/barbell-curl/barbell-curl-800.jpg",
-    ),
-  ];
+    List<Ejercicio> ejerciciosEjemplo = [
+      Ejercicio(
+        ejername: "Press de Banca",
+        ejercice_image:
+            "https://static.strengthlevel.com/images/exercises/bench-press/bench-press-800.jpg",
+      ),
+      Ejercicio(
+        ejername: "Sentadilla",
+        ejercice_image:
+            "https://static.strengthlevel.com/images/exercises/squat/squat-800.jpg",
+      ),
+      Ejercicio(
+        ejername: "Peso Muerto",
+        ejercice_image:
+            "https://static.strengthlevel.com/images/exercises/sumo-deadlift/sumo-deadlift-800.jpg",
+      ),
+      Ejercicio(
+        ejername: "Remo",
+        ejercice_image:
+            "https://static.strengthlevel.com/images/exercises/machine-row/machine-row-800.jpg",
+      ),
+      Ejercicio(
+        ejername: "Curl con Barra",
+        ejercice_image:
+            "https://static.strengthlevel.com/images/exercises/barbell-curl/barbell-curl-800.jpg",
+      ),
+    ];
 
-  for (var ejercicio in ejerciciosEjemplo) {
-    await insertEjer(ejercicio);
+    for (var ejercicio in ejerciciosEjemplo) {
+      await insertEjer(ejercicio);
+    }
   }
 
-}
-
-
   // Actualizar ejercicio
-  Future<int> updateEjer(String ejernameOld, String ejernameNew, String ejerImagePath) async {
+  Future<int> updateEjer(
+      String ejernameOld, String ejernameNew, String ejerImagePath) async {
     return await _database.update(
       'Ejercicios',
       {'ejername': ejernameNew, 'ejercice_image': ejerImagePath},
@@ -205,7 +235,8 @@ class DatabaseHelper {
 
   // Eliminar ejercicio
   Future<int> deleteEjer(String ejername) async {
-    return await _database.delete('Ejercicios', where: 'ejername = ?', whereArgs: [ejername]);
+    return await _database
+        .delete('Ejercicios', where: 'ejername = ?', whereArgs: [ejername]);
   }
 
   // Obtener todos los ejercicios
@@ -215,11 +246,13 @@ class DatabaseHelper {
 
   // Asignar ejercicio a un usuario
   Future<int> assignExerciseToUser(int userId, int ejerId) async {
-    return await _database.insert('UsuarioEjercicio', {'user_id': userId, 'ejer_id': ejerId});
+    return await _database
+        .insert('UsuarioEjercicio', {'user_id': userId, 'ejer_id': ejerId});
   }
 
   // Asignar ejercicio a un usuario con peso y fecha
-  Future<int> assignExerciseToUserWithDetails(int userId, int ejerId, int peso) async {
+  Future<int> assignExerciseToUserWithDetails(
+      int userId, int ejerId, int peso) async {
     peso ??= 0;
     String fecha = DateTime.now().toString();
     Map<String, dynamic> data = {
@@ -232,7 +265,6 @@ class DatabaseHelper {
     // Insertar los datos en la tabla UsuarioEjercicio
     return await _database.insert('UsuarioEjercicio', data);
   }
-
 
   // Eliminar ejercicio asignado a un usuario
   Future<int> removeExerciseFromUser(int userId, int ejerId) async {
@@ -259,8 +291,9 @@ class DatabaseHelper {
     await _database.close();
   }
 
-  Future<List<Map<String, dynamic>>> getExercisesWithWeightByUser(int userId) async {
-  final result = await _database.rawQuery('''
+  Future<List<Map<String, dynamic>>> getExercisesWithWeightByUser(
+      int userId) async {
+    final result = await _database.rawQuery('''
     SELECT e.id, e.ejername, e.ejercice_image, ue.peso 
     FROM UsuarioEjercicio ue
     JOIN Ejercicios e ON ue.ejer_id = e.id
@@ -272,8 +305,6 @@ class DatabaseHelper {
     )
   ''', [userId]);
 
-  return result;
-}
-
-
+    return result;
+  }
 }
