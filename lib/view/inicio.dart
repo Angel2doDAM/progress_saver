@@ -32,8 +32,9 @@ class Inicio extends StatelessWidget {
     bool isLightMode = Theme.of(context).brightness == Brightness.light;
 
     // Obtener los colores correspondientes según el modo actual
+    final carpeta = isLightMode ? 'assets/images/logo.png' : 'assets/images/logoOscuro.png';
     final fondoColor = isLightMode ? LightColors.fondoColor : DarkColors.fondoColor;
-    final azulito = isLightMode ? LightColors.azulito : DarkColors.azulito;
+    final logo = isLightMode ? LightColors.logo : DarkColors.logo;
     final botonColor = isLightMode ? LightColors.botonColor : DarkColors.botonColor;
     final azulote = isLightMode ? LightColors.azulote : DarkColors.azulote;
 
@@ -46,7 +47,7 @@ class Inicio extends StatelessWidget {
             Container(
               width: logoSize > maxImageSize ? maxImageSize : logoSize,
               height: logoSize > maxImageSize ? maxImageSize : logoSize,
-              child: Image.asset('assets/images/logo.png'),
+              child: Image.asset(carpeta),
             ),
             const SizedBox(height: 20),
             Text(
@@ -54,7 +55,7 @@ class Inicio extends StatelessWidget {
               style: TextStyle(
                 fontSize: fontSize > maxTittleSize ? maxTittleSize : fontSize,
                 fontFamily: 'KeaniaOne',
-                color: azulito,  // Color según el tema
+                color: logo,  // Color según el tema
               ),
             ),
             const SizedBox(height: 20),

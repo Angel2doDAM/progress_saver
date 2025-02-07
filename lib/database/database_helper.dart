@@ -15,7 +15,11 @@ class DatabaseHelper {
     final directory = Directory.current;
     final dbPath = join(directory.path, "base_de_datos", 'progress_saver.db');
     _database = await databaseFactory.openDatabase(dbPath);
-    //await _database.delete("UsuarioEjercicio", where: "id=?", whereArgs: [16]);
+    await _database.delete("UsuarioEjercicio", where: "id=?", whereArgs: [30]);
+    await _database.delete("UsuarioEjercicio", where: "id=?", whereArgs: [31]);
+    await _database.delete("UsuarioEjercicio", where: "id=?", whereArgs: [32]);
+    await _database.delete("UsuarioEjercicio", where: "id=?", whereArgs: [33]);
+    await _database.delete("UsuarioEjercicio", where: "id=?", whereArgs: [34]);
     // Crear tablas dentro de la misma base de datos
     await _database.execute('''
       CREATE TABLE IF NOT EXISTS Usuarios (
@@ -119,13 +123,11 @@ class DatabaseHelper {
     return result.isNotEmpty ? Usuario.fromMap(result.first) : null;
   }
 
-  // Eliminar un usuario
   Future<int> deleteUser(String username) async {
     return await _database
         .delete('Usuarios', where: 'username = ?', whereArgs: [username]);
   }
 
-  // Verificar si un usuario es admin
   Future<bool> isUserAdmin(String username) async {
     final result = await _database.query(
       'Usuarios',
@@ -147,7 +149,6 @@ class DatabaseHelper {
     return result.isNotEmpty ? Usuario.fromMap(result.first) : null;
   }
 
-  // Actualizar imagen de perfil de usuario
   Future<int> updateUserProfileImage(
       String username, String profileImagePath) async {
     return await _database.update(
@@ -158,7 +159,6 @@ class DatabaseHelper {
     );
   }
 
-  // Obtener imagen de perfil de usuario
   Future<String> getUserProfileImage(String username) async {
     final List<Map<String, dynamic>> result = await _database.rawQuery(
       'SELECT profile_image FROM Usuarios WHERE username = ?',
@@ -172,7 +172,6 @@ class DatabaseHelper {
         : "No hay foto";
   }
 
-  // Insertar ejercicio
   Future<int> insertEjer(Ejercicio ejercicio) async {
     return await _database.insert('Ejercicios', ejercicio.toMap());
   }
@@ -252,7 +251,7 @@ class DatabaseHelper {
 
   // Asignar ejercicio a un usuario con peso y fecha
   Future<int> assignExerciseToUserWithDetails(
-      int userId, int ejerId, int peso) async {
+      int userId, int ejerId, int peso, DateTime dateTime) async {
     peso ??= 0;
     String fecha = DateTime.now().toString();
     Map<String, dynamic> data = {
@@ -272,6 +271,14 @@ class DatabaseHelper {
       'UsuarioEjercicio',
       where: 'user_id = ? AND ejer_id = ?',
       whereArgs: [userId, ejerId],
+    );
+  }
+
+  Future<int> removeAllExercisesFromUser(int userId) async {
+    return await _database.delete(
+      'UsuarioEjercicio',
+      where: 'user_id = ?',
+      whereArgs: [userId],
     );
   }
 

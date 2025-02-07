@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
+import 'package:progress_saver/model/ejercicio.dart';
 import 'package:progress_saver/themes/colors.dart';
-import 'package:progress_saver/view/inicio.dart';
-import 'package:progress_saver/view/inicio_sesion.dart';
 import 'package:progress_saver/view/ajustes_usuario.dart';
 import 'package:progress_saver/viewmodel/user_provider.dart';
+import 'package:progress_saver/view/perfil.dart';
 import 'package:provider/provider.dart';
 import 'package:progress_saver/database/database_helper.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -14,6 +15,9 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final TextEditingController _textController = TextEditingController();
+  final TextEditingController _nombreController = TextEditingController();
+  final TextEditingController _imagenController = TextEditingController();
   final DatabaseHelper _dbHelper = DatabaseHelper();
   int _selectedIndex = 0;
   List<Map<String, dynamic>> _exercises = [];
@@ -42,10 +46,10 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> _onItemTapped(int index) async {
     if (index == 2) {
       await _dbHelper.resetAllUsersInitialization();
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => Inicio()));
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => Perfil()));
     } else if (index == 1) {
-      _showAddExercisesDialog(); // Mostrar el diálogo de ejercicios no asignados
+      _showCreateExercisesDialog();
     } else {
       setState(() {
         _selectedIndex = index;
@@ -57,36 +61,114 @@ class _MyHomePageState extends State<MyHomePage> {
     Navigator.push(context, MaterialPageRoute(builder: (context) => Ajustes()));
   }
 
-  // Función para mostrar el diálogo de ejercicios no asignados
+  void _showCreateExercisesDialog() async {
+    bool isLightMode = Theme.of(context).brightness == Brightness.light;
+
+    final azulito = isLightMode ? LightColors.azulito : DarkColors.azulito;
+    final azulote = isLightMode ? LightColors.azulote : DarkColors.azulote;
+    if (context.read<UserProvider>().usuarioSup.getIsAdmin() == 1) {
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              backgroundColor: azulito,
+              shadowColor: azulote,
+              title: Text(AppLocalizations.of(context)!.exerciseCreator),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(AppLocalizations.of(context)!.enterExerciseName),
+                  TextField(
+                    controller: _nombreController,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      hintText: AppLocalizations.of(context)!.exerciseName,
+                    ),
+                  ),
+                  Text(AppLocalizations.of(context)!.enterExerciseImage),
+                  TextField(
+                    controller: _imagenController,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      hintText: AppLocalizations.of(context)!.exerciseImage,
+                    ),
+                  ),
+                ],
+              ),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () async {
+                        await _dbHelper.initializeDatabase();
+                        Ejercicio ejercicio = Ejercicio(ejername: _nombreController.text, ejercice_image: _imagenController.text);
+                        await _dbHelper.insertEjer(ejercicio);
+                        setState(() {});
+                        Navigator.of(context).pop();
+                  },
+                  child: Text(AppLocalizations.of(context)!.ok),
+                ),
+              ],
+            );
+          });
+    } else {
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              backgroundColor: azulito,
+              shadowColor: azulote,
+              title: Text(AppLocalizations.of(context)!.exerciseCreator),
+              content: Text(AppLocalizations.of(context)!.restrictedAccess),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text(AppLocalizations.of(context)!.close),
+                ),
+              ],
+            );
+          });
+    }
+  }
+
   void _showAddExercisesDialog() async {
+    bool isLightMode = Theme.of(context).brightness == Brightness.light;
+
+    final azulito = isLightMode ? LightColors.azulito : DarkColors.azulito;
+    final azulote = isLightMode ? LightColors.azulote : DarkColors.azulote;
     final userId = await _dbHelper.getUserIdByUsername(
         context.read<UserProvider>().usuarioSup.getNombre());
     if (userId == null) return;
 
-    final exercisesNotAssigned = await _dbHelper.getExercisesNotAssignedToUser(userId);
+    final exercisesNotAssigned =
+        await _dbHelper.getExercisesNotAssignedToUser(userId);
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          backgroundColor: azulito,
+          shadowColor: azulote,
           title: Text(AppLocalizations.of(context)!.addExercise),
           content: Column(
             mainAxisSize: MainAxisSize.min,
-            children: exercisesNotAssigned.map<Widget>((exercise) {
-              return Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(exercise['ejername']),
-                  IconButton(
-                    icon: Icon(Icons.add),
-                    onPressed: () {
-                      _dbHelper.assignExerciseToUser(userId, exercise['id']);
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                ],
-              );
-            }).toList(),
+            children: exercisesNotAssigned.isEmpty
+                ? [Text(AppLocalizations.of(context)!.noExercisesToAssign)]
+                : exercisesNotAssigned.map<Widget>((exercise) {
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(exercise['ejername']),
+                        IconButton(
+                          icon: Icon(Icons.add),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                            _showWeightInputDialog(userId, exercise['id']);
+                          },
+                        ),
+                      ],
+                    );
+                  }).toList(),
           ),
           actions: <Widget>[
             TextButton(
@@ -101,18 +183,78 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  void _showWeightInputDialog(int userId, int exerciseId) {
+    bool isLightMode = Theme.of(context).brightness == Brightness.light;
+
+    final azulito = isLightMode ? LightColors.azulito : DarkColors.azulito;
+    final azulote = isLightMode ? LightColors.azulote : DarkColors.azulote;
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: azulito,
+          shadowColor: azulote,
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(AppLocalizations.of(context)!.desiredWeight),
+              SizedBox(height: 10),
+              TextField(
+                controller: _textController,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: AppLocalizations.of(context)!.weight,
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _textController.text = "";
+              },
+              child: Text(AppLocalizations.of(context)!.cancel),
+            ),
+            TextButton(
+              onPressed: () {
+                try {
+                  int peso = int.parse(_textController.text.trim());
+                  _dbHelper.assignExerciseToUserWithDetails(
+                      userId, exerciseId, peso, DateTime.now());
+                  _textController.text = "";
+                  _loadExercisesForUser(
+                    context.read<UserProvider>().usuarioSup.getNombre(),
+                  );
+                  Navigator.of(context).pop();
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(AppLocalizations.of(context)!.onlyNumbers),
+                    ),
+                  );
+                }
+              },
+              child: Text(AppLocalizations.of(context)!.ok),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     double anchoVentana = MediaQuery.of(context).size.width;
     int columnas = (anchoVentana / 300).clamp(1, 6).toInt();
 
-    // Obtener el modo actual (claro/oscuro)
     bool isLightMode = Theme.of(context).brightness == Brightness.light;
 
-    // Obtener los colores correspondientes según el modo actual
-    final fondoColor = isLightMode ? LightColors.fondoColor : DarkColors.fondoColor;
+    final fondoColor =
+        isLightMode ? LightColors.fondoColor : DarkColors.fondoColor;
     final azulito = isLightMode ? LightColors.azulito : DarkColors.azulito;
-    final botonColor = isLightMode ? LightColors.botonColor : DarkColors.botonColor;
+    final botonColor =
+        isLightMode ? LightColors.botonColor : DarkColors.botonColor;
     final azulote = isLightMode ? LightColors.azulote : DarkColors.azulote;
     final mio = isLightMode ? LightColors.mio : DarkColors.mio;
     final laMancha = isLightMode ? LightColors.laMancha : DarkColors.laMancha;
@@ -120,7 +262,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: azulito, // Fondo según el tema
+        backgroundColor: azulito,
         elevation: 0,
         title: Row(
           children: [
@@ -128,7 +270,7 @@ class _MyHomePageState extends State<MyHomePage> {
               onTap: _navigateToSettings,
               child: CircleAvatar(
                 backgroundImage: NetworkImage(
-                  context.watch<UserProvider>().usuarioSup.getImagen() ?? 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png',
+                  context.watch<UserProvider>().usuarioSup.getImagen(),
                 ),
                 radius: 20,
               ),
@@ -168,12 +310,16 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: AppLocalizations.of(context)!.home),
-          BottomNavigationBarItem(icon: Icon(Icons.add_box), label: AppLocalizations.of(context)!.newo),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: AppLocalizations.of(context)!.home),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.add_box),
+              label: AppLocalizations.of(context)!.newo),
           BottomNavigationBarItem(
             icon: CircleAvatar(
               backgroundImage: NetworkImage(
-                context.read<UserProvider>().usuarioSup.getImagen() ?? 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png',
+                context.read<UserProvider>().usuarioSup.getImagen(),
               ),
               radius: 20,
             ),
@@ -186,6 +332,16 @@ class _MyHomePageState extends State<MyHomePage> {
         onTap: _onItemTapped,
         iconSize: 30,
       ),
+      // Floating Action Button añadido aquí
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          _showAddExercisesDialog(); // Acción al presionar el botón flotante
+        },
+        backgroundColor: azulote,
+        child: Icon(Icons.add),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation
+          .endFloat, // Ubicación a la derecha inferior
     );
   }
 }
@@ -198,7 +354,13 @@ class Tarjeta extends StatelessWidget {
   final Color azulote;
   final Color mio;
 
-  Tarjeta({required this.name, required this.imageUrl, required this.peso, required this.botonColor, required this.azulote, required this.mio});
+  Tarjeta(
+      {required this.name,
+      required this.imageUrl,
+      required this.peso,
+      required this.botonColor,
+      required this.azulote,
+      required this.mio});
 
   @override
   Widget build(BuildContext context) {
@@ -232,7 +394,7 @@ class Tarjeta extends StatelessWidget {
                           TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                     Text(
-                      "$peso kg",
+                      "$peso" + AppLocalizations.of(context)!.kg,
                       style:
                           TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),

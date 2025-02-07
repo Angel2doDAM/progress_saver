@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:progress_saver/themes/colors.dart';
@@ -79,9 +80,11 @@ class _AjustesState extends State<Ajustes> {
     double fontSize = screenWidth * 0.04;
     double tittleSize = screenWidth * 0.08;
     double columnSize = screenWidth * 0.5;
+    double logoSize = screenWidth * 0.1;
 
     double maxFontSize = 20.0;
     double maxTittleSize = 30.0;
+    double maxLogoSize = 100.0;
 
     // Obtener si estamos en modo claro u oscuro
     bool isLightMode = Theme.of(context).brightness == Brightness.light;
@@ -89,16 +92,15 @@ class _AjustesState extends State<Ajustes> {
     // Obtener los colores según el modo
     final fondoColor = isLightMode ? LightColors.fondoColor : DarkColors.fondoColor;
     final azulito = isLightMode ? LightColors.azulito : DarkColors.azulito;
+    final azulote = isLightMode ? LightColors.azulote : DarkColors.azulote;
     final botonColor = isLightMode ? LightColors.botonColor : DarkColors.botonColor;
     final laMancha = isLightMode ? LightColors.laMancha : DarkColors.laMancha;
-    final azulote = isLightMode ? LightColors.azulote : DarkColors.azulote;
-    final navegacion = isLightMode ? LightColors.navegacion : DarkColors.navegacion;
-    final mio = isLightMode ? LightColors.mio : DarkColors.mio;
+    final logo = isLightMode ? LightColors.logo : DarkColors.logo;
 
     return Scaffold(
-      backgroundColor: fondoColor,  // Fondo según el modo
+      backgroundColor: fondoColor, // Fondo según el modo
       appBar: AppBar(
-        backgroundColor: azulito,  // Color del AppBar
+        backgroundColor: azulito, // Color del AppBar
         elevation: 0,
         title: Row(
           children: [
@@ -106,8 +108,7 @@ class _AjustesState extends State<Ajustes> {
               onTap: () => _showCustomAlert(context),
               child: CircleAvatar(
                 backgroundImage: NetworkImage(
-                  context.read<UserProvider>().usuarioSup.getImagen() ??
-                      'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png',
+                  context.read<UserProvider>().usuarioSup.getImagen(),
                 ),
                 radius: 20,
               ),
@@ -115,7 +116,7 @@ class _AjustesState extends State<Ajustes> {
             SizedBox(width: 10),
             Text(
               AppLocalizations.of(context)!.settings,
-              style: TextStyle(color: laMancha),  // Color del texto
+              style: TextStyle(color: laMancha), // Color del texto
             ),
           ],
         ),
@@ -124,76 +125,70 @@ class _AjustesState extends State<Ajustes> {
         children: [
           Container(
             width: columnSize,
-            color: botonColor,  // Color del contenedor
+            color: botonColor, // Color del contenedor
             padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(AppLocalizations.of(context)!.session,
-                    style: TextStyle(
-                        fontSize: tittleSize > maxTittleSize
-                            ? maxTittleSize
-                            : tittleSize,
-                        fontWeight: FontWeight.bold)),
-                SizedBox(height: 20),
-                ElevatedButton(
-                    onPressed: () async {
-                      await _dbHelper.resetAllUsersInitialization();
-                      Navigator.pushReplacement(
-                        context, MaterialPageRoute(builder: (context) => Inicio()));
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: navegacion,  // Color del botón
-                    ),
-                    child: Text("Cerrar Sesión",
-                        style: TextStyle(
-                            fontSize:
-                                fontSize > maxFontSize ? maxFontSize : fontSize,
-                            fontWeight: FontWeight.bold))),
-                SizedBox(height: 20),
                 Text(AppLocalizations.of(context)!.interface,
-                    style: TextStyle(
-                        fontSize: tittleSize > maxTittleSize
-                            ? maxTittleSize
-                            : tittleSize,
-                        fontWeight: FontWeight.bold)),
+                        style: TextStyle(
+                            fontSize: tittleSize > maxTittleSize
+                                ? maxTittleSize
+                                : tittleSize,
+                            fontWeight: FontWeight.bold)),
                 SizedBox(height: 10),
-                Text("Idioma",
-                    style: TextStyle(
-                        fontSize:
-                            fontSize > maxFontSize ? maxFontSize : fontSize)),
-                DropdownButton<String>(
-                  value: context
-                      .watch<LanguageProvider>()
-                      .chosenLocale
-                      .languageCode,
-                  items: [
-                    DropdownMenuItem(value: "es", child: Text("Español")),
-                    DropdownMenuItem(value: "en", child: Text("English")),
-                    DropdownMenuItem(value: "ca", child: Text("Gatalàn")),
-                    DropdownMenuItem(value: "ar", child: Text("Esñapol")),
-                    DropdownMenuItem(value: "el", child: Text("Groot")),
+                Row(
+                  children: [
+                    Text(AppLocalizations.of(context)!.lenguaje,
+                        style: TextStyle(
+                            fontSize: fontSize > maxFontSize
+                                ? maxFontSize
+                                : fontSize)),
+                    SizedBox(width: 20),
+                    DropdownButton<String>(
+                      dropdownColor: azulito,
+                      iconEnabledColor: azulote,
+                      value: context
+                          .watch<LanguageProvider>()
+                          .chosenLocale
+                          .languageCode,
+                      items: [
+                        DropdownMenuItem(value: "es", child: Text("Español")),
+                        DropdownMenuItem(value: "en", child: Text("English")),
+                        DropdownMenuItem(value: "ca", child: Text("Gatalàn")),
+                        DropdownMenuItem(value: "ar", child: Text("Esñapol")),
+                        DropdownMenuItem(value: "el", child: Text("Groot")),
+                      ],
+                      onChanged: (String? newLang) {
+                        if (newLang != null) {
+                          context
+                              .read<LanguageProvider>()
+                              .changeLanguage(newLang);
+                        }
+                      },
+                    ),
                   ],
-                  onChanged: (String? newLang) {
-                    if (newLang != null) {
-                      context.read<LanguageProvider>().changeLanguage(newLang);
-                    }
-                  },
                 ),
                 SizedBox(height: 10),
-                Text("Tema oscuro",
-                    style: TextStyle(
-                        fontSize:
-                            fontSize > maxFontSize ? maxFontSize : fontSize)),
-                Switch(
-                  value: !context
-                      .watch<ThemeProvider>()
-                      .isLightMode,
-                  onChanged: (value) {
-                    context.read<ThemeProvider>().updateMode(
-                        !value);
-                  },
+                Row(
+                  children: [
+                    Text(AppLocalizations.of(context)!.darkTheme,
+                        style: TextStyle(
+                            fontSize: fontSize > maxFontSize
+                                ? maxFontSize
+                                : fontSize)),
+                    SizedBox(width: 20),
+                    Switch(
+                      activeColor: azulote,
+                      inactiveTrackColor: azulito,
+                      inactiveThumbColor: azulote,
+                      value: !context.watch<ThemeProvider>().isLightMode,
+                      onChanged: (value) {
+                        context.read<ThemeProvider>().updateMode(!value);
+                      },
+                    ),
+                  ],
                 ),
                 SizedBox(height: 20),
                 Text("Opción 4",
@@ -201,6 +196,39 @@ class _AjustesState extends State<Ajustes> {
                         fontSize:
                             fontSize > maxFontSize ? maxFontSize : fontSize)),
               ],
+            ),
+          ),
+          Expanded(
+            child: Align(
+              alignment: Alignment
+                  .centerRight,
+              child: Container(
+                width: double.infinity,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment
+                      .center,
+                  children: [
+                    Text(
+                      AppLocalizations.of(context)!.tit,
+                      style: TextStyle(
+                        fontSize:
+                            logoSize > maxLogoSize ? maxLogoSize : logoSize,
+                        fontFamily: 'KeaniaOne',
+                        color: logo,
+                      ),
+                    ),
+                    Text(
+                      AppLocalizations.of(context)!.tle,
+                      style: TextStyle(
+                        fontSize:
+                            logoSize > maxLogoSize ? maxLogoSize : logoSize,
+                        fontFamily: 'KeaniaOne',
+                        color: logo,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
         ],
