@@ -15,7 +15,7 @@ class DatabaseHelper {
     final directory = Directory.current;
     final dbPath = join(directory.path, "base_de_datos", 'progress_saver.db');
     _database = await databaseFactory.openDatabase(dbPath);
-
+    //await _database.delete("UsuarioEjercicio", where: "id=?", whereArgs: [16]);
     // Crear tablas dentro de la misma base de datos
     await _database.execute('''
       CREATE TABLE IF NOT EXISTS Usuarios (
@@ -304,6 +304,19 @@ class DatabaseHelper {
       WHERE user_id = ue.user_id AND ejer_id = ue.ejer_id
     )
   ''', [userId]);
+
+    return result;
+  }
+
+  Future<List<Map<String, dynamic>>> getExercisesNotAssignedToUser(
+      int userId) async {
+    final result = await _database.rawQuery('''
+      SELECT * FROM Ejercicios 
+      WHERE id NOT IN (
+        SELECT DISTINCT ejer_id FROM UsuarioEjercicio 
+        WHERE user_id = ?
+      )
+    ''', [userId]);
 
     return result;
   }

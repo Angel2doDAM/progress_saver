@@ -30,5 +30,7 @@
   "newo": "New",
   "home": "Home",
   "session": "Session",
-  "interface": "Interface"
+  "interface": "Interface",
+  "close": "Close",
+  "addExercise": "Exercise to add:"
 }

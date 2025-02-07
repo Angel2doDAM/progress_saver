@@ -22,7 +22,7 @@ void main() async {
 
   UserProvider userProvider = UserProvider();
   if (usuario != null) {
-    userProvider.setUsuario(usuario);
+    userProvider.usuarioSup = usuario;
   }
 
   runApp(
@@ -47,13 +47,13 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      localizationsDelegates: [
+      localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: [
+      supportedLocales: const [
         Locale('es'),
         Locale('en'),
         Locale('ca'),

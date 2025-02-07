@@ -42,11 +42,10 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> _onItemTapped(int index) async {
     if (index == 2) {
       await _dbHelper.resetAllUsersInitialization();
-      Navigator.push(
+      Navigator.pushReplacement(
           context, MaterialPageRoute(builder: (context) => Inicio()));
     } else if (index == 1) {
-      Navigator.push(
-          context, MaterialPageRoute(builder: (context) => InicioSesion()));
+      _showAddExercisesDialog(); // Mostrar el diálogo de ejercicios no asignados
     } else {
       setState(() {
         _selectedIndex = index;
@@ -56,6 +55,50 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _navigateToSettings() {
     Navigator.push(context, MaterialPageRoute(builder: (context) => Ajustes()));
+  }
+
+  // Función para mostrar el diálogo de ejercicios no asignados
+  void _showAddExercisesDialog() async {
+    final userId = await _dbHelper.getUserIdByUsername(
+        context.read<UserProvider>().usuarioSup.getNombre());
+    if (userId == null) return;
+
+    final exercisesNotAssigned = await _dbHelper.getExercisesNotAssignedToUser(userId);
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(AppLocalizations.of(context)!.addExercise),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: exercisesNotAssigned.map<Widget>((exercise) {
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(exercise['ejername']),
+                  IconButton(
+                    icon: Icon(Icons.add),
+                    onPressed: () {
+                      _dbHelper.assignExerciseToUser(userId, exercise['id']);
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              );
+            }).toList(),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(AppLocalizations.of(context)!.close),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -76,7 +119,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: azulito,  // Fondo según el tema
+        automaticallyImplyLeading: false,
+        backgroundColor: azulito, // Fondo según el tema
         elevation: 0,
         title: Row(
           children: [
@@ -116,7 +160,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 peso: _exercises[index]['peso'] ?? 0,
                 botonColor: botonColor,
                 azulote: azulote,
-                mio: mio
+                mio: mio,
               );
             },
           ),

@@ -32,5 +32,7 @@
   "session": "Sesión",
   "interface": "Interfaz",
   "lenguaje" : "Idioma",
-  "deleteAcount": "Eliminar cuenta"
+  "deleteAcount": "Eliminar cuenta",
+  "close": "Cerrar",
+  "addExercise": "Ejercicio a agregar:"
 }

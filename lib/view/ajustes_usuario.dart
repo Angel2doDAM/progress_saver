@@ -140,13 +140,13 @@ class _AjustesState extends State<Ajustes> {
                 ElevatedButton(
                     onPressed: () async {
                       await _dbHelper.resetAllUsersInitialization();
-                      Navigator.push(
+                      Navigator.pushReplacement(
                         context, MaterialPageRoute(builder: (context) => Inicio()));
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: navegacion,  // Color del botón
                     ),
-                    child: Text("Eliminar cuenta",
+                    child: Text("Cerrar Sesión",
                         style: TextStyle(
                             fontSize:
                                 fontSize > maxFontSize ? maxFontSize : fontSize,
