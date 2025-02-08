@@ -2,6 +2,7 @@ class Ejercicio {
   String _ejername;
   String _ejercice_image = "";
 
+  /// Constructor para crear un ejercicio con nombre e imagen por defecto.
   Ejercicio({
     required String ejername,
     int peso = 0,
@@ -10,7 +11,7 @@ class Ejercicio {
   })  : _ejername = ejername,
         _ejercice_image = ejercice_image;
 
-  // Método para convertir un Map en un objeto Ejercicio
+  /// Funcion que crea un objeto Ejercicio a partir de un mapa de datos.
   factory Ejercicio.fromMap(Map<String, Object?> map) {
     return Ejercicio(
       ejername: map['ejername'] as String,
@@ -18,6 +19,7 @@ class Ejercicio {
     );
   }
 
+  /// Funcion que convierte el objeto Ejercicio a un mapa de datos.
   Map<String, Object?> toMap() {
     return {
       'ejername': _ejername,

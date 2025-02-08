@@ -51,5 +51,11 @@
   "enterExerciseName": "Yo soy Groot:",
   "enterExerciseImage": "Yo soy Groot:",
   "exerciseName": "Yo soy Groot",
-  "exerciseImage": "Yo soy Groot"
+  "exerciseImage": "Yo soy Groot",
+  "delete": "Yo soy Groot",
+  "exerciseDeleted": "Yo soy Groot",
+  "confirmDeleteAccount": "Yo soy Groot",
+  "areYouSure": "¿Yo soy Groot?",
+  "yes": "Yo soy Groot",
+  "no": "Yo soy Groot"
 }

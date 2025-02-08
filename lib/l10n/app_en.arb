@@ -51,5 +51,11 @@
   "enterExerciseName": "Exercise name:",
   "enterExerciseImage": "Exercise image:",
   "exerciseName": "Name",
-  "exerciseImage": "Image"
+  "exerciseImage": "Image",
+  "delete": "Delete",
+  "exerciseDeleted": "Exercise Deleted",
+  "confirmDeleteAccount": "Confirm delete account",
+  "areYouSure": "Are you sure you want to delete your account?",
+  "yes": "Yes",
+  "no": "No"
 }

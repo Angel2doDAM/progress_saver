@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+/// Provider para gestionar el tema (oscuro/claro) de la aplicacion
+/// 
+/// Hay 2 para elegir (comentame tu favorito)
 class ThemeProvider extends ChangeNotifier {
   late SharedPreferences _prefs;
   bool _isLightMode = true;

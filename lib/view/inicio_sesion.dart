@@ -14,11 +14,17 @@ class InicioSesion extends StatefulWidget {
   _InicioSesionState createState() => _InicioSesionState();
 }
 
+/// Pagina para el inicio de sesion
+/// 
+/// En ella se introducen las credenciales:
+///   Nombre
+///   Contraseña
 class _InicioSesionState extends State<InicioSesion> {
   final DatabaseHelper _dbHelper = DatabaseHelper();
   final TextEditingController nombreController = TextEditingController();
   final TextEditingController contraController = TextEditingController();
 
+  // Funcion que cifra la contraseña para que no se pueda acceder a ella desde los archivos
   String encryptPassword(String password) {
     final salt = 'mi_salt_secreto';
     final passwordWithSalt = password + salt;
@@ -36,7 +42,7 @@ class _InicioSesionState extends State<InicioSesion> {
     double maxFontSize = 20.0;
     double maxTittleSize = 60.0;
 
-    // Obtener si estamos en modo claro u oscuro
+    // Identifica si la aplicacion esta en modo claro u oscuro
     bool isLightMode = Theme.of(context).brightness == Brightness.light;
 
     // Obtener los colores según el modo
@@ -47,9 +53,9 @@ class _InicioSesionState extends State<InicioSesion> {
     final logo = isLightMode ? LightColors.logo : DarkColors.logo;
 
     return Scaffold(
-      backgroundColor: fondoColor,  // Fondo según el modo
+      backgroundColor: fondoColor,
       appBar: AppBar(
-        backgroundColor: azulito,  // Color del AppBar
+        backgroundColor: azulito,
         title: Text(AppLocalizations.of(context)!.sessionInit),
       ),
       body: Center(
@@ -57,12 +63,13 @@ class _InicioSesionState extends State<InicioSesion> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SizedBox(height: screenHeight * 0.05),
+            // Nombre/Titulo de la aplicacion
             Text(
               AppLocalizations.of(context)!.sessionInit,
               style: TextStyle(
                 fontSize: fontSize > maxTittleSize ? maxTittleSize : fontSize,
                 fontFamily: 'KeaniaOne',
-                color: logo,  // Color del título
+                color: logo,
               ),
             ),
             SizedBox(height: screenHeight * 0.1),
@@ -73,6 +80,7 @@ class _InicioSesionState extends State<InicioSesion> {
                       : screenWidth * 0.03,
                 )),
             const SizedBox(height: 8),
+            // Hueco para rellenar con el nombre de usuario
             TextField(
               controller: nombreController,
               decoration: InputDecoration(
@@ -96,6 +104,7 @@ class _InicioSesionState extends State<InicioSesion> {
                       : screenWidth * 0.03,
                 )),
             const SizedBox(height: 8),
+            // Hueco para rellenar con la nombre del usuario
             TextField(
               controller: contraController,
               obscureText: true,
@@ -113,6 +122,7 @@ class _InicioSesionState extends State<InicioSesion> {
               ),
             ),
             const SizedBox(height: 20),
+            // Boton para enviar los datos e iniciar sesion
             ElevatedButton(
               onPressed: () async {
                 if (nombreController.text.isNotEmpty && contraController.text.isNotEmpty) {
@@ -122,6 +132,7 @@ class _InicioSesionState extends State<InicioSesion> {
                   final password = encryptPassword(contraController.text);
 
                   try {
+                    // Comprueba si el usuario existe e inicia sesion si asi es
                     Usuario? usuario = await _dbHelper.validateUser(username, password);
                     if (usuario != null) {
                       _dbHelper.updateUserInitialization(username, 1);
@@ -151,7 +162,7 @@ class _InicioSesionState extends State<InicioSesion> {
               },
               child: Text(AppLocalizations.of(context)!.login),
               style: ElevatedButton.styleFrom(
-                backgroundColor: botonColor,  // Color del botón
+                backgroundColor: botonColor,
               ),
             ),
           ],

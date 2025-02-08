@@ -5,6 +5,7 @@ class Usuario {
   String _profile_image = "";
   bool _isInicied = false;
 
+  /// Constructor para crear un objeto Usuario.
   Usuario({
     required String username,
     required String password,
@@ -15,7 +16,7 @@ class Usuario {
         _isadmin = isadmin,
         _profile_image = profile_image;
 
-  // Método para convertir un Map en un objeto Usuario
+  /// Funcion que crea un objeto Usuario a partir de un mapa de datos.
   factory Usuario.fromMap(Map<String, Object?> map) {
     return Usuario(
       username: map['username'] as String,
@@ -25,6 +26,7 @@ class Usuario {
     ).._isInicied = (map['isInicied'] as int? ?? 0) == 1;
   }
 
+  /// Funcion que convierte el objeto Usuario a un mapa de datos.
   Map<String, Object?> toMap() {
     return {
       'username': getNombre(),
@@ -36,9 +38,13 @@ class Usuario {
   }
 
   String getNombre() => _username;
+
   String getContrasena() => _password;
+
   int getIsAdmin() => _isadmin;
+
   String getImagen() => _profile_image;
+
   bool getIsInicied() => _isInicied;
 
   void setImagen(String imagen) {

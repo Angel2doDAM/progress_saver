@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:progress_saver/model/usuario.dart';
 
-
+/// Provider para gestionar el usuario registrado actualmente
+/// 
+/// Se usa para acceder a los datos de un usuario iniciado
 class UserProvider extends ChangeNotifier {
   Usuario usuarioSup = Usuario(
       username: "Anonimo",

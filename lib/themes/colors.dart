@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
-// 🌞 Modo Claro
+/// Modo Claro
+/// 
+/// Colores predefinidos si la aplicacion esta en modo claro
 class LightColors {
   static const Color errorColor = Color.fromARGB(255, 202, 3, 3);
   static const Color azulito = Color.fromRGBO(236, 254, 254, 1);
@@ -13,7 +15,9 @@ class LightColors {
   static const Color logo = Color.fromRGBO(236, 254, 254, 1);
 }
 
-// 🌙 Modo Oscuro
+/// Modo Oscuro
+/// 
+/// Colores predefinidos si la aplicacion esta en modo oscuro
 class DarkColors {
   static const Color errorColor = Color.fromARGB(255, 255, 0, 0);
   static const Color azulito = Color.fromARGB(236, 45, 45, 129);

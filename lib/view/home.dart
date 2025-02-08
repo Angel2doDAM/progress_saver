@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
 import 'package:progress_saver/model/ejercicio.dart';
 import 'package:progress_saver/themes/colors.dart';
 import 'package:progress_saver/view/ajustes_usuario.dart';
@@ -14,6 +13,12 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
+/// Pagina principal de la aplicacion
+/// 
+/// En ella se gestionan los ejercicios que tiene un usuario asignado
+/// Solo administradores pueden crear ejercicios nuevos
+/// Se pueden añadir ejercicios ya creados al usuario iniciado
+/// Se puede acceder a los ajustes
 class _MyHomePageState extends State<MyHomePage> {
   final TextEditingController _textController = TextEditingController();
   final TextEditingController _nombreController = TextEditingController();
@@ -28,11 +33,13 @@ class _MyHomePageState extends State<MyHomePage> {
     _initializeDatabase();
   }
 
+  // Inicia la base de datos
   Future<void> _initializeDatabase() async {
     await _dbHelper.initializeDatabase();
     _loadExercisesForUser(context.read<UserProvider>().usuarioSup.getNombre());
   }
 
+  // Carga los ejercicios del usuario iniciado
   Future<void> _loadExercisesForUser(String username) async {
     final userId = await _dbHelper.getUserIdByUsername(username);
     if (userId == null) return;
@@ -43,6 +50,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  // Funcion que estipula que pasa al pulsar sobre la navegacion inferior
   Future<void> _onItemTapped(int index) async {
     if (index == 2) {
       await _dbHelper.resetAllUsersInitialization();
@@ -57,16 +65,19 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  // Abre la pestaña de ajustes
   void _navigateToSettings() {
     Navigator.push(context, MaterialPageRoute(builder: (context) => Ajustes()));
   }
 
+  // Alert para crear un ejercicio nuevo si el usuario es Administrador
   void _showCreateExercisesDialog() async {
     bool isLightMode = Theme.of(context).brightness == Brightness.light;
 
     final azulito = isLightMode ? LightColors.azulito : DarkColors.azulito;
     final azulote = isLightMode ? LightColors.azulote : DarkColors.azulote;
     if (context.read<UserProvider>().usuarioSup.getIsAdmin() == 1) {
+      // Si el usuario es administrador accede a otro alert para introducir nombre e imagen del ejercicio
       showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -98,11 +109,23 @@ class _MyHomePageState extends State<MyHomePage> {
               actions: <Widget>[
                 TextButton(
                   onPressed: () async {
-                        await _dbHelper.initializeDatabase();
-                        Ejercicio ejercicio = Ejercicio(ejername: _nombreController.text, ejercice_image: _imagenController.text);
-                        await _dbHelper.insertEjer(ejercicio);
-                        setState(() {});
-                        Navigator.of(context).pop();
+                    _nombreController.text = "";
+                    _imagenController.text = "";
+                    Navigator.of(context).pop();
+                  },
+                  child: Text(AppLocalizations.of(context)!.cancel),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    await _dbHelper.initializeDatabase();
+                    Ejercicio ejercicio = Ejercicio(
+                        ejername: _nombreController.text,
+                        ejercice_image: _imagenController.text);
+                    await _dbHelper.insertEjer(ejercicio);
+                    setState(() {});
+                    _nombreController.text = "";
+                    _imagenController.text = "";
+                    Navigator.of(context).pop();
                   },
                   child: Text(AppLocalizations.of(context)!.ok),
                 ),
@@ -110,6 +133,7 @@ class _MyHomePageState extends State<MyHomePage> {
             );
           });
     } else {
+      // Si el usuario no es administrador deniega el acceso
       showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -131,6 +155,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  // Muestra un alert para añadir un nuevo ejercicio eligiendolo y asignandole un peso
   void _showAddExercisesDialog() async {
     bool isLightMode = Theme.of(context).brightness == Brightness.light;
 
@@ -163,6 +188,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           icon: Icon(Icons.add),
                           onPressed: () {
                             Navigator.of(context).pop();
+                            // Abre un sub-alert para la introduccion del peso
                             _showWeightInputDialog(userId, exercise['id']);
                           },
                         ),
@@ -183,6 +209,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  // Muestra un alert para que el usuario introduzca el peso asociado a un ejercicio
   void _showWeightInputDialog(int userId, int exerciseId) {
     bool isLightMode = Theme.of(context).brightness == Brightness.light;
 
@@ -220,7 +247,7 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: () {
                 try {
                   int peso = int.parse(_textController.text.trim());
-                  _dbHelper.assignExerciseToUserWithDetails(
+                  _dbHelper.assignExerciseToUser(
                       userId, exerciseId, peso, DateTime.now());
                   _textController.text = "";
                   _loadExercisesForUser(
@@ -243,6 +270,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  // Vista general de la pestaña princimal de la aplicacion
   @override
   Widget build(BuildContext context) {
     double anchoVentana = MediaQuery.of(context).size.width;
@@ -258,6 +286,7 @@ class _MyHomePageState extends State<MyHomePage> {
     final azulote = isLightMode ? LightColors.azulote : DarkColors.azulote;
     final mio = isLightMode ? LightColors.mio : DarkColors.mio;
     final laMancha = isLightMode ? LightColors.laMancha : DarkColors.laMancha;
+    final navegacion = isLightMode ? LightColors.navegacion : DarkColors.laMancha;
 
     return Scaffold(
       appBar: AppBar(
@@ -296,6 +325,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             itemCount: _exercises.length,
             itemBuilder: (context, index) {
+              // Añade los ejercicios al fondo deslizable en forma de tarjetas
               return Tarjeta(
                 name: _exercises[index]['ejername'],
                 imageUrl: _exercises[index]['ejercice_image'],
@@ -303,6 +333,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 botonColor: botonColor,
                 azulote: azulote,
                 mio: mio,
+                azulito: azulito,
+                navegacion: navegacion,
               );
             },
           ),
@@ -332,20 +364,20 @@ class _MyHomePageState extends State<MyHomePage> {
         onTap: _onItemTapped,
         iconSize: 30,
       ),
-      // Floating Action Button añadido aquí
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          _showAddExercisesDialog(); // Acción al presionar el botón flotante
+          _showAddExercisesDialog();
         },
         backgroundColor: azulote,
         child: Icon(Icons.add),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation
-          .endFloat, // Ubicación a la derecha inferior
+          .endFloat,
     );
   }
 }
 
+// Widget que retorna una tarjeta con la imagen, nombre y peso asociado de un ejercicio
 class Tarjeta extends StatelessWidget {
   final String name;
   final String imageUrl;
@@ -353,6 +385,8 @@ class Tarjeta extends StatelessWidget {
   final Color botonColor;
   final Color azulote;
   final Color mio;
+  final Color azulito;
+  final Color navegacion;
 
   Tarjeta(
       {required this.name,
@@ -360,7 +394,9 @@ class Tarjeta extends StatelessWidget {
       required this.peso,
       required this.botonColor,
       required this.azulote,
-      required this.mio});
+      required this.mio,
+      required this.azulito,
+      required this.navegacion});
 
   @override
   Widget build(BuildContext context) {
@@ -401,8 +437,50 @@ class Tarjeta extends StatelessWidget {
                   ],
                 ),
               ),
+              ElevatedButton(
+                onPressed: () async {
+                  final userId = await DatabaseHelper().getUserIdByUsername(
+                    context.read<UserProvider>().usuarioSup.getNombre(),
+                  );
+
+                  if (userId != null) {
+                    final exerciseData =
+                        await DatabaseHelper().getExerciseByName(name);
+
+                    if (exerciseData != null) {
+                      int exerciseId = exerciseData['id'];
+                      await DatabaseHelper()
+                          .removeExerciseFromUser(userId, exerciseId);
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                              AppLocalizations.of(context)!.exerciseDeleted),
+                        ),
+                      );
+                      (context as Element).markNeedsBuild();
+
+                      final homePageState = context.findAncestorStateOfType<_MyHomePageState>();
+                      homePageState?.setState(() {
+                        homePageState._loadExercisesForUser(
+                          context.read<UserProvider>().usuarioSup.getNombre(),
+                        );
+                      });
+                    }
+                  }
+                },
+                style:
+                  ElevatedButton.styleFrom(backgroundColor: navegacion),
+                child: Text(AppLocalizations.of(context)!.delete,
+                  style: TextStyle(
+                    color: azulito,
+                    fontWeight: FontWeight.bold
+                  )
+                ),
+              ),
             ],
           ),
         ));
   }
 }
+

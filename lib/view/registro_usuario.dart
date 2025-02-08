@@ -14,6 +14,11 @@ class RegistroUsuario extends StatefulWidget {
   _RegistroUsuarioState createState() => _RegistroUsuarioState();
 }
 
+/// Pagina para el registro de un nuevo usuario
+/// 
+/// En ella se introducen las credenciales:
+///   Nombre
+///   Contraseña
 class _RegistroUsuarioState extends State<RegistroUsuario> {
   
   final DatabaseHelper _dbHelper = DatabaseHelper();
@@ -25,6 +30,7 @@ class _RegistroUsuarioState extends State<RegistroUsuario> {
 
   bool esAdmin = false;
 
+  // Comprueba si el nombre y la contraseña cumplen con los requisitos
   bool validarCampos() {
     setState(() {
       final nombre = nombreController.text;
@@ -54,6 +60,7 @@ class _RegistroUsuarioState extends State<RegistroUsuario> {
     return alertaNombre.isEmpty && alertaContra.isEmpty;
   }
 
+  // Encripta la contraseña
   String encryptPassword(String password) {
     final salt = 'mi_salt_secreto';
     final passwordWithSalt = password + salt;
@@ -72,7 +79,7 @@ class _RegistroUsuarioState extends State<RegistroUsuario> {
     double maxFontSize = 20.0;
     double maxTittleSize = 60.0;
 
-    // Obtener si estamos en modo claro u oscuro
+    // Obtener si esta en modo claro u oscuro
     bool isLightMode = Theme.of(context).brightness == Brightness.light;
 
     // Obtener los colores según el modo
@@ -84,9 +91,9 @@ class _RegistroUsuarioState extends State<RegistroUsuario> {
     final logo = isLightMode ? LightColors.logo : DarkColors.logo;
 
     return Scaffold(
-      backgroundColor: fondoColor,  // Fondo según el modo
+      backgroundColor: fondoColor,
       appBar: AppBar(
-        backgroundColor: azulito,  // Color del AppBar
+        backgroundColor: azulito,
         title: Text(AppLocalizations.of(context)!.userRegistration),
       ),
       body: Center(
@@ -94,12 +101,13 @@ class _RegistroUsuarioState extends State<RegistroUsuario> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SizedBox(height: screenHeight * 0.05),
+            // Nombre/Titulo de la aplicacion
             Text(
               AppLocalizations.of(context)!.userRegistration,
               style: TextStyle(
                 fontSize: fontSize > maxTittleSize ? maxTittleSize : fontSize,
                 fontFamily: 'KeaniaOne',
-                color: logo,  // Color del título
+                color: logo,
               ),
             ),
             SizedBox(height: screenHeight * 0.1),
@@ -110,6 +118,7 @@ class _RegistroUsuarioState extends State<RegistroUsuario> {
                       : screenWidth * 0.03,
                 )),
             const SizedBox(height: 8),
+            // Hueco para rellenar con el nombre de usuario
             TextField(
               controller: nombreController,
               decoration: InputDecoration(
@@ -133,6 +142,7 @@ class _RegistroUsuarioState extends State<RegistroUsuario> {
               ),
             ),
             const SizedBox(height: 10),
+            // Hueco para rellenar con la nombre del usuario
             Text(AppLocalizations.of(context)!.enterPasswd,
                 style: TextStyle(
                   fontSize: screenWidth * 0.03 > maxFontSize
@@ -164,6 +174,7 @@ class _RegistroUsuarioState extends State<RegistroUsuario> {
               ),
             ),
             const SizedBox(height: 20),
+            // Boton para enviar los datos e iniciar sesion creando el usuario
             ElevatedButton(
               onPressed: () async {
                 if (validarCampos()) {
@@ -172,12 +183,15 @@ class _RegistroUsuarioState extends State<RegistroUsuario> {
                   final username = nombreController.text;
                   final password = encryptPassword(contraController.text);
 
+                  // Comprueba si el usuario existe e inicia sesion si asi es
                   if (await _dbHelper.userExists(username)) {
+                    // Si existe muestra un error
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(AppLocalizations.of(context)!.existingUser)),
                     );
                   } else {
+                    // Si no existe se crea al usuario y se accede a la pestaña principal de la aplicacion
                     try {
                       Usuario usuario =
                           new Usuario(username: username, password: password);

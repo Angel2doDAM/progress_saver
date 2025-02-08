@@ -5,91 +5,37 @@ import 'package:progress_saver/themes/colors.dart';
 import 'package:progress_saver/viewmodel/user_provider.dart';
 import 'package:progress_saver/viewmodel/language_provider.dart';
 import 'package:progress_saver/viewmodel/theme_provider.dart';
-import '../database/database_helper.dart';
-import 'package:http/http.dart';
-import 'package:progress_saver/view/inicio.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
+/// Pantalla de ajustes que permite al usuario configurar el idioma y tema.
 class Ajustes extends StatefulWidget {
   @override
   _AjustesState createState() => _AjustesState();
 }
 
 class _AjustesState extends State<Ajustes> {
-  final DatabaseHelper _dbHelper = DatabaseHelper();
   final TextEditingController nombreController = TextEditingController();
   final TextEditingController contraController = TextEditingController();
-  final TextEditingController _textController = TextEditingController();
-
-  void _showCustomAlert(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(AppLocalizations.of(context)!.profilePhoto),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(AppLocalizations.of(context)!.choseImage),
-              SizedBox(height: 10),
-              TextField(
-                controller: _textController,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintText: AppLocalizations.of(context)!.pasteUrl,
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            ElevatedButton(
-              onPressed: () async {
-                try {
-                  Uri uri = Uri.parse(_textController.text);
-                  if ((await get(uri)).statusCode == 200) {
-                    await _dbHelper.initializeDatabase();
-                    String inputText = _textController.text;
-
-                    // Actualiza la imagen en UserProvider
-                    context.read<UserProvider>().guardarImagen(inputText);
-
-                    // Actualiza la imagen en la base de datos
-                    await _dbHelper.updateUserProfileImage(
-                        context.read<UserProvider>().usuarioSup.getNombre(),
-                        inputText);
-
-                    setState(() {});
-                    Navigator.of(context).pop();
-                  }
-                } catch (e) {
-                  setState(() {});
-                }
-              },
-              child: Text(AppLocalizations.of(context)!.accept),
-            ),
-          ],
-        );
-      },
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
 
+    /// Tamaño dinámico de fuentes y elementos dependiendo del ancho de la pantalla
     double fontSize = screenWidth * 0.04;
     double tittleSize = screenWidth * 0.08;
     double columnSize = screenWidth * 0.5;
     double logoSize = screenWidth * 0.1;
 
+    /// Tamaño máximo de los elementos para evitar que se agranden demasiado
     double maxFontSize = 20.0;
     double maxTittleSize = 30.0;
     double maxLogoSize = 100.0;
 
-    // Obtener si estamos en modo claro u oscuro
+    /// Determina si el modo oscuro o claro está activado
     bool isLightMode = Theme.of(context).brightness == Brightness.light;
 
-    // Obtener los colores según el modo
+    /// Definir colores dependiendo del modo de tema
     final fondoColor = isLightMode ? LightColors.fondoColor : DarkColors.fondoColor;
     final azulito = isLightMode ? LightColors.azulito : DarkColors.azulito;
     final azulote = isLightMode ? LightColors.azulote : DarkColors.azulote;
@@ -98,14 +44,14 @@ class _AjustesState extends State<Ajustes> {
     final logo = isLightMode ? LightColors.logo : DarkColors.logo;
 
     return Scaffold(
-      backgroundColor: fondoColor, // Fondo según el modo
+      backgroundColor: fondoColor,
       appBar: AppBar(
-        backgroundColor: azulito, // Color del AppBar
+        backgroundColor: azulito,
         elevation: 0,
         title: Row(
           children: [
             GestureDetector(
-              onTap: () => _showCustomAlert(context),
+              // Avatar del usuario que lee la imagen del perfil
               child: CircleAvatar(
                 backgroundImage: NetworkImage(
                   context.read<UserProvider>().usuarioSup.getImagen(),
@@ -114,23 +60,26 @@ class _AjustesState extends State<Ajustes> {
               ),
             ),
             SizedBox(width: 10),
+            // Título de la pantalla de ajustes
             Text(
               AppLocalizations.of(context)!.settings,
-              style: TextStyle(color: laMancha), // Color del texto
+              style: TextStyle(color: laMancha),
             ),
           ],
         ),
       ),
       body: Row(
         children: [
+          // Columna izquierda para las opciones de interfaz y tema
           Container(
             width: columnSize,
-            color: botonColor, // Color del contenedor
+            color: botonColor,
             padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Título de la sección de la interfaz
                 Text(AppLocalizations.of(context)!.interface,
                         style: TextStyle(
                             fontSize: tittleSize > maxTittleSize
@@ -146,6 +95,7 @@ class _AjustesState extends State<Ajustes> {
                                 ? maxFontSize
                                 : fontSize)),
                     SizedBox(width: 20),
+                    // Dropdown para seleccionar el idioma
                     DropdownButton<String>(
                       dropdownColor: azulito,
                       iconEnabledColor: azulote,
@@ -153,7 +103,7 @@ class _AjustesState extends State<Ajustes> {
                           .watch<LanguageProvider>()
                           .chosenLocale
                           .languageCode,
-                      items: [
+                      items: const[
                         DropdownMenuItem(value: "es", child: Text("Español")),
                         DropdownMenuItem(value: "en", child: Text("English")),
                         DropdownMenuItem(value: "ca", child: Text("Gatalàn")),
@@ -162,6 +112,7 @@ class _AjustesState extends State<Ajustes> {
                       ],
                       onChanged: (String? newLang) {
                         if (newLang != null) {
+                          // Cambiar el idioma seleccionado
                           context
                               .read<LanguageProvider>()
                               .changeLanguage(newLang);
@@ -179,35 +130,32 @@ class _AjustesState extends State<Ajustes> {
                                 ? maxFontSize
                                 : fontSize)),
                     SizedBox(width: 20),
+                    // Interruptor para cambiar entre modo oscuro y claro
                     Switch(
                       activeColor: azulote,
                       inactiveTrackColor: azulito,
                       inactiveThumbColor: azulote,
                       value: !context.watch<ThemeProvider>().isLightMode,
                       onChanged: (value) {
+                        // Actualizar el modo de tema
                         context.read<ThemeProvider>().updateMode(!value);
                       },
                     ),
                   ],
                 ),
-                SizedBox(height: 20),
-                Text("Opción 4",
-                    style: TextStyle(
-                        fontSize:
-                            fontSize > maxFontSize ? maxFontSize : fontSize)),
               ],
             ),
           ),
+          // Parte de la derecha con el titulo
           Expanded(
             child: Align(
-              alignment: Alignment
-                  .centerRight,
+              alignment: Alignment.centerRight,
               child: Container(
                 width: double.infinity,
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment
-                      .center,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    // Nombre/Titulo de la aplicacion
                     Text(
                       AppLocalizations.of(context)!.tit,
                       style: TextStyle(

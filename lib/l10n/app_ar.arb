@@ -51,5 +51,11 @@
   "enterExerciseName": "Bromne del ecerjicio:",
   "enterExerciseImage": "Ijamen del ecerjicio:",
   "exerciseName": "Bromne",
-  "exerciseImage": "Ijamen"
+  "exerciseImage": "Ijamen",
+  "delete": "Emilinar",
+  "exerciseDeleted": "Ecerjicio emilinado",
+  "confirmDeleteAccount": "Conmirfar emilinación de tuenca",
+  "areYouSure": "¿Estás seguro de que sedeas emilinar tu tuenca?",
+  "yes": "Is",
+  "no": "On"
 }

@@ -51,5 +51,11 @@
   "enterExerciseName": "Nombre del ejercicio:",
   "enterExerciseImage": "Imagen del ejercicio:",
   "exerciseName": "Nombre",
-  "exerciseImage": "Imagen"
+  "exerciseImage": "Imagen",
+  "delete": "Eliminar",
+  "exerciseDeleted": "Ejercicio eliminado",
+  "confirmDeleteAccount": "Confirmar eliminación de cuenta",
+  "areYouSure": "¿Estás seguro de que deseas eliminar tu cuenta?",
+  "yes": "Sí",
+  "no": "No"
 }
