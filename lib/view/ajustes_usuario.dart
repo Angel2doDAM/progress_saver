@@ -51,7 +51,7 @@ class _AjustesState extends State<Ajustes> {
         title: Row(
           children: [
             GestureDetector(
-              // Avatar del usuario que lee la imagen del perfil
+              /// Avatar del usuario que lee la imagen del perfil
               child: CircleAvatar(
                 backgroundImage: NetworkImage(
                   context.read<UserProvider>().usuarioSup.getImagen(),
@@ -60,7 +60,7 @@ class _AjustesState extends State<Ajustes> {
               ),
             ),
             SizedBox(width: 10),
-            // Título de la pantalla de ajustes
+            /// Título de la pantalla de ajustes
             Text(
               AppLocalizations.of(context)!.settings,
               style: TextStyle(color: laMancha),
@@ -70,7 +70,7 @@ class _AjustesState extends State<Ajustes> {
       ),
       body: Row(
         children: [
-          // Columna izquierda para las opciones de interfaz y tema
+          /// Columna izquierda para las opciones de interfaz y tema
           Container(
             width: columnSize,
             color: botonColor,
@@ -79,7 +79,7 @@ class _AjustesState extends State<Ajustes> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Título de la sección de la interfaz
+                /// Título de la sección de la interfaz
                 Text(AppLocalizations.of(context)!.interface,
                         style: TextStyle(
                             fontSize: tittleSize > maxTittleSize
@@ -95,7 +95,7 @@ class _AjustesState extends State<Ajustes> {
                                 ? maxFontSize
                                 : fontSize)),
                     SizedBox(width: 20),
-                    // Dropdown para seleccionar el idioma
+                    /// Dropdown para seleccionar el idioma
                     DropdownButton<String>(
                       dropdownColor: azulito,
                       iconEnabledColor: azulote,
@@ -112,7 +112,7 @@ class _AjustesState extends State<Ajustes> {
                       ],
                       onChanged: (String? newLang) {
                         if (newLang != null) {
-                          // Cambiar el idioma seleccionado
+                          /// Cambiar el idioma seleccionado
                           context
                               .read<LanguageProvider>()
                               .changeLanguage(newLang);
@@ -130,14 +130,14 @@ class _AjustesState extends State<Ajustes> {
                                 ? maxFontSize
                                 : fontSize)),
                     SizedBox(width: 20),
-                    // Interruptor para cambiar entre modo oscuro y claro
+                    /// Interruptor para cambiar entre modo oscuro y claro
                     Switch(
                       activeColor: azulote,
                       inactiveTrackColor: azulito,
                       inactiveThumbColor: azulote,
                       value: !context.watch<ThemeProvider>().isLightMode,
                       onChanged: (value) {
-                        // Actualizar el modo de tema
+                        /// Actualizar el modo de tema
                         context.read<ThemeProvider>().updateMode(!value);
                       },
                     ),
@@ -146,7 +146,7 @@ class _AjustesState extends State<Ajustes> {
               ],
             ),
           ),
-          // Parte de la derecha con el titulo
+          /// Parte de la derecha con el titulo
           Expanded(
             child: Align(
               alignment: Alignment.centerRight,
@@ -155,7 +155,7 @@ class _AjustesState extends State<Ajustes> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Nombre/Titulo de la aplicacion
+                    /// Nombre/Titulo de la aplicacion
                     Text(
                       AppLocalizations.of(context)!.tit,
                       style: TextStyle(

@@ -12,11 +12,11 @@ class DatabaseHelper {
   /// Configura el entorno SQLite
   /// Crea las tablas necesarias si no existen
   Future<void> initializeDatabase() async {
-     // Inicializa sqflite para entorno FFI
+     /// Inicializa sqflite para entorno FFI
     sqfliteFfiInit();
     databaseFactory = databaseFactoryFfi;
 
-    // Especifica la ruta para la base de datos
+    /// Especifica la ruta para la base de datos
     final directory = Directory.current;
     final dbPath = join(directory.path, "base_de_datos", 'progress_saver.db');
     _database = await databaseFactory.openDatabase(dbPath);

@@ -33,13 +33,13 @@ class _MyHomePageState extends State<MyHomePage> {
     _initializeDatabase();
   }
 
-  // Inicia la base de datos
+  /// Inicia la base de datos
   Future<void> _initializeDatabase() async {
     await _dbHelper.initializeDatabase();
     _loadExercisesForUser(context.read<UserProvider>().usuarioSup.getNombre());
   }
 
-  // Carga los ejercicios del usuario iniciado
+  /// Carga los ejercicios del usuario iniciado
   Future<void> _loadExercisesForUser(String username) async {
     final userId = await _dbHelper.getUserIdByUsername(username);
     if (userId == null) return;
@@ -50,7 +50,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  // Funcion que estipula que pasa al pulsar sobre la navegacion inferior
+  /// Funcion que estipula que pasa al pulsar sobre la navegacion inferior
   Future<void> _onItemTapped(int index) async {
     if (index == 2) {
       await _dbHelper.resetAllUsersInitialization();
@@ -65,19 +65,19 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  // Abre la pestaña de ajustes
+  /// Abre la pestaña de ajustes
   void _navigateToSettings() {
     Navigator.push(context, MaterialPageRoute(builder: (context) => Ajustes()));
   }
 
-  // Alert para crear un ejercicio nuevo si el usuario es Administrador
+  /// Alert para crear un ejercicio nuevo si el usuario es Administrador
   void _showCreateExercisesDialog() async {
     bool isLightMode = Theme.of(context).brightness == Brightness.light;
 
     final azulito = isLightMode ? LightColors.azulito : DarkColors.azulito;
     final azulote = isLightMode ? LightColors.azulote : DarkColors.azulote;
     if (context.read<UserProvider>().usuarioSup.getIsAdmin() == 1) {
-      // Si el usuario es administrador accede a otro alert para introducir nombre e imagen del ejercicio
+      /// Si el usuario es administrador accede a otro alert para introducir nombre e imagen del ejercicio
       showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -133,7 +133,7 @@ class _MyHomePageState extends State<MyHomePage> {
             );
           });
     } else {
-      // Si el usuario no es administrador deniega el acceso
+      /// Si el usuario no es administrador deniega el acceso
       showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -155,7 +155,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  // Muestra un alert para añadir un nuevo ejercicio eligiendolo y asignandole un peso
+  /// Muestra un alert para añadir un nuevo ejercicio eligiendolo y asignandole un peso
   void _showAddExercisesDialog() async {
     bool isLightMode = Theme.of(context).brightness == Brightness.light;
 
@@ -188,7 +188,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           icon: Icon(Icons.add),
                           onPressed: () {
                             Navigator.of(context).pop();
-                            // Abre un sub-alert para la introduccion del peso
+                            /// Abre un sub-alert para la introduccion del peso
                             _showWeightInputDialog(userId, exercise['id']);
                           },
                         ),
@@ -209,7 +209,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  // Muestra un alert para que el usuario introduzca el peso asociado a un ejercicio
+  /// Muestra un alert para que el usuario introduzca el peso asociado a un ejercicio
   void _showWeightInputDialog(int userId, int exerciseId) {
     bool isLightMode = Theme.of(context).brightness == Brightness.light;
 
@@ -270,7 +270,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  // Vista general de la pestaña princimal de la aplicacion
+  /// Vista general de la pestaña princimal de la aplicacion
   @override
   Widget build(BuildContext context) {
     double anchoVentana = MediaQuery.of(context).size.width;
@@ -325,7 +325,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             itemCount: _exercises.length,
             itemBuilder: (context, index) {
-              // Añade los ejercicios al fondo deslizable en forma de tarjetas
+              /// Añade los ejercicios al fondo deslizable en forma de tarjetas
               return Tarjeta(
                 name: _exercises[index]['ejername'],
                 imageUrl: _exercises[index]['ejercice_image'],

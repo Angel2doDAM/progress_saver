@@ -30,7 +30,7 @@ class _RegistroUsuarioState extends State<RegistroUsuario> {
 
   bool esAdmin = false;
 
-  // Comprueba si el nombre y la contraseña cumplen con los requisitos
+  /// Comprueba si el nombre y la contraseña cumplen con los requisitos
   bool validarCampos() {
     setState(() {
       final nombre = nombreController.text;
@@ -60,7 +60,7 @@ class _RegistroUsuarioState extends State<RegistroUsuario> {
     return alertaNombre.isEmpty && alertaContra.isEmpty;
   }
 
-  // Encripta la contraseña
+  /// Encripta la contraseña
   String encryptPassword(String password) {
     final salt = 'mi_salt_secreto';
     final passwordWithSalt = password + salt;
@@ -79,10 +79,10 @@ class _RegistroUsuarioState extends State<RegistroUsuario> {
     double maxFontSize = 20.0;
     double maxTittleSize = 60.0;
 
-    // Obtener si esta en modo claro u oscuro
+    /// Obtener si esta en modo claro u oscuro
     bool isLightMode = Theme.of(context).brightness == Brightness.light;
 
-    // Obtener los colores según el modo
+    /// Obtener los colores según el modo
     final fondoColor = isLightMode ? LightColors.fondoColor : DarkColors.fondoColor;
     final azulito = isLightMode ? LightColors.azulito : DarkColors.azulito;
     final botonColor = isLightMode ? LightColors.botonColor : DarkColors.botonColor;
@@ -101,7 +101,7 @@ class _RegistroUsuarioState extends State<RegistroUsuario> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SizedBox(height: screenHeight * 0.05),
-            // Nombre/Titulo de la aplicacion
+            /// Nombre/Titulo de la aplicacion
             Text(
               AppLocalizations.of(context)!.userRegistration,
               style: TextStyle(
@@ -118,7 +118,7 @@ class _RegistroUsuarioState extends State<RegistroUsuario> {
                       : screenWidth * 0.03,
                 )),
             const SizedBox(height: 8),
-            // Hueco para rellenar con el nombre de usuario
+            /// Hueco para rellenar con el nombre de usuario
             TextField(
               controller: nombreController,
               decoration: InputDecoration(
@@ -142,7 +142,7 @@ class _RegistroUsuarioState extends State<RegistroUsuario> {
               ),
             ),
             const SizedBox(height: 10),
-            // Hueco para rellenar con la nombre del usuario
+            /// Hueco para rellenar con la nombre del usuario
             Text(AppLocalizations.of(context)!.enterPasswd,
                 style: TextStyle(
                   fontSize: screenWidth * 0.03 > maxFontSize
@@ -174,7 +174,7 @@ class _RegistroUsuarioState extends State<RegistroUsuario> {
               ),
             ),
             const SizedBox(height: 20),
-            // Boton para enviar los datos e iniciar sesion creando el usuario
+            /// Boton para enviar los datos e iniciar sesion creando el usuario
             ElevatedButton(
               onPressed: () async {
                 if (validarCampos()) {
@@ -183,15 +183,15 @@ class _RegistroUsuarioState extends State<RegistroUsuario> {
                   final username = nombreController.text;
                   final password = encryptPassword(contraController.text);
 
-                  // Comprueba si el usuario existe e inicia sesion si asi es
+                  /// Comprueba si el usuario existe e inicia sesion si asi es
                   if (await _dbHelper.userExists(username)) {
-                    // Si existe muestra un error
+                    /// Si existe muestra un error
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(AppLocalizations.of(context)!.existingUser)),
                     );
                   } else {
-                    // Si no existe se crea al usuario y se accede a la pestaña principal de la aplicacion
+                    /// Si no existe se crea al usuario y se accede a la pestaña principal de la aplicacion
                     try {
                       Usuario usuario =
                           new Usuario(username: username, password: password);
@@ -226,7 +226,7 @@ class _RegistroUsuarioState extends State<RegistroUsuario> {
               },
               child: Text(AppLocalizations.of(context)!.registerUser),
               style: ElevatedButton.styleFrom(
-                backgroundColor: botonColor,  // Color del botón
+                backgroundColor: botonColor,  /// Color del botón
               ),
             ),
           ],

@@ -37,7 +37,6 @@ void main() async {
   );
 }
 
-
 class MyApp extends StatelessWidget {
   final Widget startPage;
 
@@ -60,7 +59,7 @@ class MyApp extends StatelessWidget {
         Locale('ar'),
         Locale('el'),
       ],
-      locale: context.watch<LanguageProvider>().chosenLocale, 
+      locale: context.watch<LanguageProvider>().chosenLocale, /// Usando el valor por defecto
       theme: context.watch<ThemeProvider>().isLightMode
           ? ThemeData.light()
           : ThemeData.dark(),
@@ -68,4 +67,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-

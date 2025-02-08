@@ -24,7 +24,7 @@ class _InicioSesionState extends State<InicioSesion> {
   final TextEditingController nombreController = TextEditingController();
   final TextEditingController contraController = TextEditingController();
 
-  // Funcion que cifra la contraseña para que no se pueda acceder a ella desde los archivos
+  /// Funcion que cifra la contraseña para que no se pueda acceder a ella desde los archivos
   String encryptPassword(String password) {
     final salt = 'mi_salt_secreto';
     final passwordWithSalt = password + salt;
@@ -42,10 +42,10 @@ class _InicioSesionState extends State<InicioSesion> {
     double maxFontSize = 20.0;
     double maxTittleSize = 60.0;
 
-    // Identifica si la aplicacion esta en modo claro u oscuro
+    /// Identifica si la aplicacion esta en modo claro u oscuro
     bool isLightMode = Theme.of(context).brightness == Brightness.light;
 
-    // Obtener los colores según el modo
+    /// Obtener los colores según el modo
     final fondoColor = isLightMode ? LightColors.fondoColor : DarkColors.fondoColor;
     final azulito = isLightMode ? LightColors.azulito : DarkColors.azulito;
     final botonColor = isLightMode ? LightColors.botonColor : DarkColors.botonColor;
@@ -63,7 +63,7 @@ class _InicioSesionState extends State<InicioSesion> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SizedBox(height: screenHeight * 0.05),
-            // Nombre/Titulo de la aplicacion
+            /// Nombre/Titulo de la aplicacion
             Text(
               AppLocalizations.of(context)!.sessionInit,
               style: TextStyle(
@@ -80,7 +80,7 @@ class _InicioSesionState extends State<InicioSesion> {
                       : screenWidth * 0.03,
                 )),
             const SizedBox(height: 8),
-            // Hueco para rellenar con el nombre de usuario
+            /// Hueco para rellenar con el nombre de usuario
             TextField(
               controller: nombreController,
               decoration: InputDecoration(
@@ -104,7 +104,7 @@ class _InicioSesionState extends State<InicioSesion> {
                       : screenWidth * 0.03,
                 )),
             const SizedBox(height: 8),
-            // Hueco para rellenar con la nombre del usuario
+            /// Hueco para rellenar con la nombre del usuario
             TextField(
               controller: contraController,
               obscureText: true,
@@ -122,7 +122,7 @@ class _InicioSesionState extends State<InicioSesion> {
               ),
             ),
             const SizedBox(height: 20),
-            // Boton para enviar los datos e iniciar sesion
+            /// Boton para enviar los datos e iniciar sesion
             ElevatedButton(
               onPressed: () async {
                 if (nombreController.text.isNotEmpty && contraController.text.isNotEmpty) {
@@ -132,7 +132,7 @@ class _InicioSesionState extends State<InicioSesion> {
                   final password = encryptPassword(contraController.text);
 
                   try {
-                    // Comprueba si el usuario existe e inicia sesion si asi es
+                    /// Comprueba si el usuario existe e inicia sesion si asi es
                     Usuario? usuario = await _dbHelper.validateUser(username, password);
                     if (usuario != null) {
                       _dbHelper.updateUserInitialization(username, 1);

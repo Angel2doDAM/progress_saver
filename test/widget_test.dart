@@ -1,31 +1,46 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:progress_saver/main.dart';
 import 'package:progress_saver/view/home.dart';
+import 'package:progress_saver/view/inicio.dart';
+import 'package:provider/provider.dart';
+import 'package:progress_saver/viewmodel/language_provider.dart';
+import 'package:progress_saver/viewmodel/theme_provider.dart';
+import 'package:progress_saver/viewmodel/user_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:progress_saver/database/database_helper.dart';
+import 'package:progress_saver/model/usuario.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(MyHomePage());
+  testWidgets('Verificar que el texto "Progress Saver" se muestra en pantalla', (WidgetTester tester) async {
+    // Configuración de SharedPreferences, DatabaseHelper y UserProvider como en tu código real
+    SharedPreferences prefs = await SharedPreferences.getInstance();  
+    DatabaseHelper dbHelper = DatabaseHelper();
+    await dbHelper.initializeDatabase();
+    Usuario? usuario = await dbHelper.getUserWithIsInicied();
+    UserProvider userProvider = UserProvider();
+    if (usuario != null) {
+      userProvider.usuarioSup = usuario;
+    }
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    // Ejecutamos la app con el MultiProvider que incluye todos los providers necesarios
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => LanguageProvider(prefs)),
+          ChangeNotifierProvider(create: (_) => userProvider),
+          ChangeNotifierProvider(create: (_) => ThemeProvider(prefs)),
+        ],
+        child: MaterialApp(
+          debugShowCheckedModeBanner: false,
+          home: usuario != null ? MyHomePage() : Inicio(),
+        ),
+      ),
+    );
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    // Esperamos que la app cargue
+    await tester.pumpAndSettle();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // Buscamos el texto "Progress Saver"
+    expect(find.text('Progress Saver'), findsOneWidget);
   });
 }

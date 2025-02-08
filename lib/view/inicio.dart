@@ -33,10 +33,10 @@ class Inicio extends StatelessWidget {
     double maxFontSize = 40.0;
     double maxTittleSize = 60.0;
 
-    // Obtiene el modo actual (claro/oscuro)
+    /// Obtiene el modo actual (claro/oscuro)
     bool isLightMode = Theme.of(context).brightness == Brightness.light;
 
-    // Obtiene los colores correspondientes según el modo actual asi como el logo de la aplicacion
+    /// Obtiene los colores correspondientes según el modo actual asi como el logo de la aplicacion
     final carpeta = isLightMode ? 'assets/images/logo.png' : 'assets/images/logoOscuro.png';
     final fondoColor = isLightMode ? LightColors.fondoColor : DarkColors.fondoColor;
     final logo = isLightMode ? LightColors.logo : DarkColors.logo;
@@ -49,14 +49,14 @@ class Inicio extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Logo de la aplicacion
+            /// Logo de la aplicacion
             Container(
               width: logoSize > maxImageSize ? maxImageSize : logoSize,
               height: logoSize > maxImageSize ? maxImageSize : logoSize,
               child: Image.asset(carpeta),
             ),
             const SizedBox(height: 20),
-            // Titulo de la aplicacion
+            /// Titulo de la aplicacion
             Text(
               AppLocalizations.of(context)!.tittle,
               style: TextStyle(
@@ -66,14 +66,14 @@ class Inicio extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            // Imagen de un cerebro que deja claro para que sirve la aplicacion
+            /// Imagen de un cerebro que deja claro para que sirve la aplicacion
             Container(
               width: brainSize > maxImageSize ? maxImageSize : brainSize,
               height: brainSize > maxImageSize ? maxImageSize : brainSize,
               child: Image.asset('assets/images/cerebro.png'),
             ),
             const SizedBox(height: 20),
-            // Accede a la pestaña de inicio de sesion
+            /// Accede a la pestaña de inicio de sesion
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
@@ -100,7 +100,7 @@ class Inicio extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 10),
-            // Accede a la pestaña de registro de usuario
+            /// Accede a la pestaña de registro de usuario
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
@@ -127,7 +127,7 @@ class Inicio extends StatelessWidget {
               ),
             ),
             Spacer(),
-            // Muestra el eslogan de la aplicacion abajo del todo
+            /// Muestra el eslogan de la aplicacion abajo del todo
             Padding(
               padding: const EdgeInsets.only(bottom: 20.0),
               child: Text(

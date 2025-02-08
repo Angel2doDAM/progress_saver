@@ -91,10 +91,10 @@ void _showCustomAlert(BuildContext context) {
                     await _dbHelper.initializeDatabase();
                     String inputText = _textController.text;
 
-                    // Actualiza la imagen en UserProvider
+                    /// Actualiza la imagen en UserProvider
                     context.read<UserProvider>().guardarImagen(inputText);
 
-                    // Actualiza la imagen en la base de datos
+                    /// Actualiza la imagen en la base de datos
                     await _dbHelper.updateUserProfileImage(
                         context.read<UserProvider>().usuarioSup.getNombre(),
                         inputText);
@@ -116,7 +116,7 @@ void _showCustomAlert(BuildContext context) {
 
   @override
   Widget build(BuildContext context) {
-    // Obtiene las medidas de la pantalla para su uso en cuanto a widgets
+    /// Obtiene las medidas de la pantalla para su uso en cuanto a widgets
     double screenWidth = MediaQuery.of(context).size.width;
 
     double fontSize = screenWidth * 0.04;
@@ -128,10 +128,10 @@ void _showCustomAlert(BuildContext context) {
     double maxTittleSize = 30.0;
     double maxLogoSize = 100.0;
 
-    // Obtiene si la aplicacion se encuentra en modo claro u oscuro
+    /// Obtiene si la aplicacion se encuentra en modo claro u oscuro
     bool isLightMode = Theme.of(context).brightness == Brightness.light;
 
-    // Define los colores segun el modo actual
+    /// Define los colores segun el modo actual
     final fondoColor = isLightMode ? LightColors.fondoColor : DarkColors.fondoColor;
     final azulito = isLightMode ? LightColors.azulito : DarkColors.azulito;
     final botonColor = isLightMode ? LightColors.botonColor : DarkColors.botonColor;
@@ -145,7 +145,7 @@ void _showCustomAlert(BuildContext context) {
         elevation: 0,
         title: Row(
           children: [
-            // Muestra la imagen de usuario y permite cambiarla mediante un alert al que se accede clicando
+            /// Muestra la imagen de usuario y permite cambiarla mediante un alert al que se accede clicando
             GestureDetector(
               onTap: () => _showCustomAlert(context),
               child: CircleAvatar(
@@ -156,7 +156,7 @@ void _showCustomAlert(BuildContext context) {
               ),
             ),
             SizedBox(width: 10),
-            // Muestra el nombre de usuario
+            /// Muestra el nombre de usuario
             Text(
               context.watch<UserProvider>().usuarioSup.getNombre(),
               style: TextStyle(color: laMancha),
@@ -181,10 +181,10 @@ void _showCustomAlert(BuildContext context) {
                             : tittleSize,
                         fontWeight: FontWeight.bold)),
                 SizedBox(height: 20),
-                // Boton para cerrar sesion
+                /// Boton para cerrar sesion
                 ElevatedButton(
                     onPressed: () async {
-                      // Establece todos los usuarios como "no iniciados"
+                      /// Establece todos los usuarios como "no iniciados"
                       await _dbHelper.resetAllUsersInitialization();
                       Navigator.pushReplacement(context,
                           MaterialPageRoute(builder: (context) => Inicio()));
@@ -198,10 +198,10 @@ void _showCustomAlert(BuildContext context) {
                                 fontSize > maxFontSize ? maxFontSize : fontSize,
                             fontWeight: FontWeight.bold))),
                 SizedBox(height: 20),
-                // Boton para eliminar la cuenta
+                /// Boton para eliminar la cuenta
                 ElevatedButton(
                     onPressed: () async {
-                      // Muestra la alerta de confirmacion
+                      /// Muestra la alerta de confirmacion
                       _showDeleteConfirmationDialog(context);
                     },
                     style:
@@ -215,7 +215,7 @@ void _showCustomAlert(BuildContext context) {
               ],
             ),
           ),
-          // Parte de la derecha con el titulo
+          /// Parte de la derecha con el titulo
           Expanded(
             child: Align(
               alignment: Alignment.centerRight,
@@ -224,7 +224,7 @@ void _showCustomAlert(BuildContext context) {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Nombre/Titulo de la aplicacion
+                    /// Nombre/Titulo de la aplicacion
                     Text(
                       AppLocalizations.of(context)!.tit,
                       style: TextStyle(
